@@ -1,0 +1,147 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fira+Code:wght@400;500&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ─── Design Tokens ─────────────────────────────────────────────────────────── */
+:root {
+  --bg: #0c0f1a;
+  --surface: #141827;
+  --surface2: #1a1f30;
+  --fg: #e2e8f4;
+  --fg-muted: #9499b0;
+  --fg-subtle: #5d6380;
+  --accent: #38bdf8;
+  --accent-soft: #0c2a3f;
+  --border: #2a3251;
+  --success: #34d399;
+  --warning: #fbbf24;
+  --danger: #f87171;
+  --purple: #a78bfa;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #38bdf8 0%, #a78bfa 100%);
+  --gradient-surface: linear-gradient(180deg, #1a1f30 0%, #141827 100%);
+}
+
+/* ─── Base ───────────────────────────────────────────────────────────────────── */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: "DM Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+code,
+pre,
+kbd {
+  font-family: "Fira Code", monospace;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fg-subtle);
+}
+
+/* ─── Utility Classes ────────────────────────────────────────────────────────── */
+@layer utilities {
+  .text-gradient {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .surface-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+
+  .surface-card-hover {
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .surface-card-hover:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 1px var(--accent-soft);
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn-primary:hover {
+    opacity: 0.9;
+  }
+  .btn-primary:active {
+    transform: scale(0.98);
+  }
+  .btn-primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--fg-muted);
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .btn-ghost:hover {
+    color: var(--fg);
+    border-color: var(--fg-subtle);
+  }
+
+  .badge-active {
+    background: color-mix(in srgb, var(--success) 15%, transparent);
+    color: var(--success);
+    border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  }
+  .badge-paused {
+    background: color-mix(in srgb, var(--warning) 15%, transparent);
+    color: var(--warning);
+    border: 1px solid color-mix(in srgb, var(--warning) 30%, transparent);
+  }
+  .badge-failed {
+    background: color-mix(in srgb, var(--danger) 15%, transparent);
+    color: var(--danger);
+    border: 1px solid color-mix(in srgb, var(--danger) 30%, transparent);
+  }
+  .badge-draft {
+    background: color-mix(in srgb, var(--fg-subtle) 15%, transparent);
+    color: var(--fg-muted);
+    border: 1px solid var(--border);
+  }
+}

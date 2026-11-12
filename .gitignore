@@ -1,0 +1,40 @@
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic (don't ignore versions — they're source-controlled)
+# alembic/versions/ — intentionally NOT ignored
+
+# Logs
+*.log
