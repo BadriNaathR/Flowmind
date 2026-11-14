@@ -1,0 +1,697 @@
+<title>FlowMind 2-Day Plan</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+
+<style>
+:root {
+  --bg: #0c0f1a; --surface: #111827; --surface2: #1c2538;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.12);
+  --fg: #f1f5f9; --fg-muted: #94a3b8; --fg-subtle: #475569;
+  --accent: #38bdf8; --accent-dim: rgba(56,189,248,0.12);
+  --green: #22c55e; --green-dim: rgba(34,197,94,0.12);
+  --orange: #f59e0b; --orange-dim: rgba(245,158,11,0.12);
+  --red: #ef4444; --red-dim: rgba(239,68,68,0.12);
+  --purple: #a78bfa; --purple-dim: rgba(167,139,250,0.12);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+    --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.12);
+    --fg: #0f172a; --fg-muted: #64748b; --fg-subtle: #94a3b8;
+    --accent: #0284c7; --accent-dim: rgba(2,132,199,0.08);
+    --green: #16a34a; --green-dim: rgba(22,163,74,0.08);
+    --orange: #d97706; --orange-dim: rgba(217,119,6,0.08);
+    --red: #dc2626; --red-dim: rgba(220,38,38,0.08);
+    --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.08);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f8fafc; --surface: #ffffff; --surface2: #f1f5f9;
+  --border: rgba(0,0,0,0.07); --border2: rgba(0,0,0,0.12);
+  --fg: #0f172a; --fg-muted: #64748b; --fg-subtle: #94a3b8;
+  --accent: #0284c7; --accent-dim: rgba(2,132,199,0.08);
+  --green: #16a34a; --green-dim: rgba(22,163,74,0.08);
+  --orange: #d97706; --orange-dim: rgba(217,119,6,0.08);
+  --red: #dc2626; --red-dim: rgba(220,38,38,0.08);
+  --purple: #7c3aed; --purple-dim: rgba(124,58,237,0.08);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif; font-size: 14.5px; line-height: 1.65;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 60px;
+}
+.page { max-width: 740px; margin: 0 auto; }
+
+.sticky-header {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+  background: var(--bg); border-bottom: 1px solid var(--border); padding: 12px 0;
+  margin-left: max(-16px, calc(-1 * env(safe-area-inset-left, 0px)));
+  margin-right: max(-16px, calc(-1 * env(safe-area-inset-right, 0px)));
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+body::before {
+  content: ""; position: fixed; inset: 0 0 auto;
+  height: env(safe-area-inset-top, 0px); background: var(--bg); z-index: 11;
+}
+.header-inner {
+  max-width: 740px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+}
+.header-brand {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: var(--fg);
+}
+.brand-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+.progress-bar-wrap { display: flex; align-items: center; gap: 10px; flex: 1; min-width: 160px; }
+.progress-track { flex: 1; height: 4px; background: var(--surface2); border-radius: 99px; overflow: hidden; min-width: 60px; }
+.progress-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; }
+.progress-label { font-size: 12px; color: var(--fg-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.reset-btn { font-size: 12px; color: var(--fg-subtle); background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+.reset-btn:hover { color: var(--fg-muted); }
+
+.hero { padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+}
+.hero h1 {
+  font-family: 'Space Grotesk', sans-serif; font-size: clamp(26px, 5vw, 36px);
+  font-weight: 700; line-height: 1.15; text-wrap: balance; color: var(--fg); margin-bottom: 10px;
+}
+.hero-sub { color: var(--fg-muted); font-size: 15px; margin-bottom: 20px; }
+.day-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+.day-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 99px; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--border2); background: var(--surface); color: var(--fg-muted);
+}
+.day-pill .dot { width: 6px; height: 6px; border-radius: 50%; }
+
+.callout { border-radius: 14px; padding: 20px 22px; margin-bottom: 28px; border: 1px solid; }
+.callout-critical { background: var(--orange-dim); border-color: rgba(245,158,11,0.25); }
+.callout-info { background: var(--accent-dim); border-color: rgba(56,189,248,0.2); }
+.callout-green { background: var(--green-dim); border-color: rgba(34,197,94,0.2); }
+.callout-title {
+  font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px;
+  display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+}
+.callout-critical .callout-title { color: var(--orange); }
+.callout-info .callout-title { color: var(--accent); }
+.callout-green .callout-title { color: var(--green); }
+
+.code-wrap { position: relative; margin: 10px 0; }
+.code-block {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+  line-height: 1.7; color: var(--fg); overflow-x: auto; white-space: pre;
+}
+.code-block .comment { color: var(--fg-subtle); }
+.code-block .key { color: var(--accent); }
+.code-block .value { color: var(--green); }
+.code-block .changed { color: var(--orange); font-weight: 500; }
+.copy-btn {
+  position: absolute; top: 8px; right: 8px; font-size: 11px; padding: 3px 8px; border-radius: 6px;
+  background: var(--surface); border: 1px solid var(--border2); color: var(--fg-muted);
+  cursor: pointer; font-family: 'Inter', sans-serif; transition: color 0.15s, background 0.15s;
+}
+.copy-btn:hover { color: var(--fg); background: var(--surface2); }
+.copy-btn.copied { color: var(--green); }
+
+.section { margin-bottom: 36px; }
+.section-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border);
+}
+.day-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+.section-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 18px; color: var(--fg); }
+.section-desc { font-size: 13px; color: var(--fg-muted); margin-top: 2px; }
+
+.sub-section { margin-bottom: 20px; }
+.sub-title {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
+  color: var(--fg-subtle); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;
+}
+.sub-title::after { content: ""; flex: 1; height: 1px; background: var(--border); }
+
+.task-list { display: flex; flex-direction: column; gap: 6px; }
+.task-item {
+  display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px;
+  border-radius: 10px; border: 1px solid var(--border); background: var(--surface);
+  cursor: pointer; transition: border-color 0.15s, background 0.15s; user-select: none;
+}
+.task-item:hover { border-color: var(--border2); background: var(--surface2); }
+.task-item.done { background: var(--green-dim); border-color: rgba(34,197,94,0.2); }
+.task-check {
+  width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px; transition: background 0.15s, border-color 0.15s;
+}
+.task-item.done .task-check { background: var(--green); border-color: var(--green); }
+.task-check svg { display: none; }
+.task-item.done .task-check svg { display: block; }
+.task-content { flex: 1; min-width: 0; }
+.task-title { font-size: 13.5px; color: var(--fg); font-weight: 500; line-height: 1.4; }
+.task-item.done .task-title { color: var(--fg-muted); text-decoration: line-through; text-decoration-color: var(--green); }
+.task-detail { font-size: 12px; color: var(--fg-muted); margin-top: 2px; }
+.task-item.done .task-detail { color: var(--fg-subtle); }
+.task-tags { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+.tag { font-size: 10.5px; font-weight: 600; padding: 1.5px 7px; border-radius: 4px; letter-spacing: 0.03em; }
+.tag-backend { background: var(--purple-dim); color: var(--purple); }
+.tag-oauth   { background: var(--orange-dim); color: var(--orange); }
+.tag-test    { background: var(--green-dim);  color: var(--green); }
+.tag-setup   { background: var(--surface2);   color: var(--fg-muted); border: 1px solid var(--border); }
+
+.steps-list { display: flex; flex-direction: column; gap: 8px; counter-reset: step; }
+.step-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 10px 14px;
+  border-radius: 10px; background: var(--surface); border: 1px solid var(--border);
+}
+.step-num {
+  counter-increment: step; width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent-dim); color: var(--accent); font-size: 11px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  font-family: 'Space Grotesk', sans-serif;
+}
+.step-body { flex: 1; min-width: 0; }
+.step-label { font-size: 13.5px; font-weight: 500; color: var(--fg); }
+.step-hint  { font-size: 12px; color: var(--fg-muted); margin-top: 3px; }
+.step-code {
+  margin-top: 8px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 7px; padding: 8px 12px; font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--accent); overflow-x: auto; white-space: pre;
+}
+
+.donts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+@media (max-width: 540px) { .donts-grid { grid-template-columns: 1fr; } }
+.dont-card { padding: 14px 16px; border-radius: 10px; border: 1px solid; }
+.dont-card h4 { font-size: 12px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.do-card   { background: var(--green-dim); border-color: rgba(34,197,94,0.2); }
+.do-card h4 { color: var(--green); }
+.dont-only { background: var(--red-dim);   border-color: rgba(239,68,68,0.2); }
+.dont-only h4 { color: var(--red); }
+.note-row { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: var(--fg-muted); padding: 3px 0; line-height: 1.4; }
+.note-row span { flex-shrink: 0; font-size: 14px; margin-top: 1px; }
+</style>
+
+<header class="sticky-header">
+  <div class="header-inner">
+    <div class="header-brand"><div class="brand-dot"></div>FlowMind · OpenRouter Plan</div>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-label" id="progress-label">0 / 0 done</span>
+      <button class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>
+  </div>
+</header>
+
+<div class="page">
+
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Nov 14–15, 2026 · OpenRouter System
+    </div>
+    <h1>2-Day Plan — Real Integrations</h1>
+    <p class="hero-sub">OpenRouter LLM is available. Use these 2 days to wire real Gmail, Sheets, Slack and Notion APIs — then test the full flow end-to-end with the LLM.</p>
+    <div class="day-pills">
+      <div class="day-pill"><div class="dot" style="background:var(--orange)"></div>First — Switch to OpenRouter</div>
+      <div class="day-pill"><div class="dot" style="background:var(--purple)"></div>Day 1 — Credentials + Gmail + Sheets</div>
+      <div class="day-pill"><div class="dot" style="background:var(--green)"></div>Day 2 — Slack + Notion + E2E Test</div>
+    </div>
+  </div>
+
+  <!-- CRITICAL: OpenRouter Switch -->
+  <div class="callout callout-critical">
+    <div class="callout-title">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Do This First — Switch to OpenRouter
+    </div>
+    <p style="font-size:13px;color:var(--fg-muted);margin-bottom:12px;">Two .env changes, then restart. The LangChain agent code stays exactly the same — only the endpoint changes. No SSL issues, no corporate firewall.</p>
+
+    <p style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:var(--orange);margin-bottom:6px;">backend/.env — change these 2 lines</p>
+    <div class="code-wrap">
+      <div class="code-block" id="env-code"><span class="comment"># ── CHANGE ──────────────────────────────────────────────────</span>
+<span class="key">APP_ENV</span>=<span class="changed">production</span>              <span class="comment"># was: local</span>
+<span class="key">OPENROUTER_API_KEY</span>=<span class="changed">sk-or-v1-PASTE-YOUR-KEY-HERE</span>
+
+<span class="comment"># ── KEEP (no change) ────────────────────────────────────────</span>
+<span class="key">DATABASE_URL</span>=<span class="value">sqlite:///./flowmind_dev.db</span>
+<span class="key">OPENROUTER_BASE_URL</span>=<span class="value">https://openrouter.ai/api/v1</span>
+<span class="key">OPENROUTER_MODEL</span>=<span class="value">anthropic/claude-3-haiku</span>
+<span class="key">JWT_SECRET_KEY</span>=<span class="value">d8850ba14eec2ab762d8d794b3d137149a725f8d89d1578ff0b4cda9be568652</span>
+<span class="key">ENCRYPTION_KEY</span>=<span class="value">VX1SqE_ctH8VqLz5H2-PfL93vg5hSn_Y-JJqfpBpJkE=</span>
+<span class="key">FRONTEND_URL</span>=<span class="value">http://localhost:5173</span></div>
+      <button class="copy-btn" onclick="copyCode('env-code', this)">Copy</button>
+    </div>
+
+    <div class="steps-list" style="margin-top:14px;">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <div class="step-label">Get API key — openrouter.ai → Keys → Create key</div>
+          <div class="step-hint">Free credits included. Claude Haiku is very cheap — all your testing will cost under $1</div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <div class="step-label">Paste key into backend/.env, set APP_ENV to <code style="font-family:JetBrains Mono,monospace;font-size:12px">production</code></div>
+        </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <div class="step-label">Restart uvicorn → create a test workflow → verify it parses via OpenRouter</div>
+          <div class="step-hint">If it works, you're done with the switch. All SSL issues are gone.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Setup -->
+  <div class="section">
+    <div class="section-header">
+      <span class="day-badge" style="background:var(--surface2);color:var(--fg-muted)">SETUP</span>
+      <div>
+        <div class="section-title">Get Running on the New System</div>
+        <div class="section-desc">One-time — do before anything else</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Backend</div>
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body"><div class="step-label">Copy code to new machine (USB / Google Drive / git)</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-label">Create venv + install packages</div>
+            <div class="step-code">cd flowmind\backend
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-body"><div class="step-label">Copy .env from TCS system → update the 2 lines above (APP_ENV + OPENROUTER_API_KEY)</div></div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <div class="step-label">Start backend</div>
+            <div class="step-code">uvicorn app.main:app --reload --port 8000</div>
+            <div class="step-hint">SQLite auto-creates tables on first start</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Frontend</div>
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <div class="step-label">Install and start</div>
+            <div class="step-code">cd flowmind\frontend
+npm install
+npm run dev -- --port 5173</div>
+          </div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <div class="step-label">Open http://localhost:5173 → register → create a workflow → confirm OpenRouter parses it correctly</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 1 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="day-badge" style="background:var(--purple-dim);color:var(--purple)">DAY 1</span>
+      <div>
+        <div class="section-title">Google OAuth + Gmail + Sheets</div>
+        <div class="section-desc">Morning: Google Cloud Console credentials · Afternoon: implement real clients</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Morning · Google Cloud Console (~2 hrs)</div>
+      <div class="task-list">
+
+        <div class="task-item" id="t-g1" onclick="toggle('t-g1')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Create Google Cloud project</div>
+            <div class="task-detail">console.cloud.google.com → New Project → name it "FlowMind"</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-g2" onclick="toggle('t-g2')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Enable Gmail API + Google Sheets API</div>
+            <div class="task-detail">APIs & Services → Library → search "Gmail API" → Enable · repeat for "Google Sheets API"</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-g3" onclick="toggle('t-g3')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Configure OAuth consent screen</div>
+            <div class="task-detail">APIs & Services → OAuth consent screen → External → add your email as test user · Scopes: gmail.readonly, gmail.send, spreadsheets</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-g4" onclick="toggle('t-g4')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Create OAuth 2.0 Client ID + Secret</div>
+            <div class="task-detail">APIs & Services → Credentials → Create → OAuth 2.0 Client ID → Web app · Redirect URI: <code style="font-size:11px;font-family:JetBrains Mono,monospace">http://localhost:8000/api/v1/auth/google/callback</code> · Save the Client ID and Secret</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Afternoon · Implement (~3 hrs)</div>
+
+      <div class="code-wrap" style="margin-bottom:16px;">
+        <div class="code-block" id="env2-code"><span class="comment"># Add to backend/.env</span>
+<span class="key">GOOGLE_CLIENT_ID</span>=<span class="value">your-client-id.apps.googleusercontent.com</span>
+<span class="key">GOOGLE_CLIENT_SECRET</span>=<span class="value">GOCSPX-xxxxxxxxxxxx</span></div>
+        <button class="copy-btn" onclick="copyCode('env2-code', this)">Copy</button>
+      </div>
+
+      <div class="task-list">
+
+        <div class="task-item" id="t-pkg-g" onclick="toggle('t-pkg-g')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Install Google packages + add to requirements.txt</div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">pip install google-auth google-auth-oauthlib google-api-python-client</code></div>
+            <div class="task-tags"><span class="tag tag-setup">Setup</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-google-auth" onclick="toggle('t-google-auth')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Wire real Google OAuth in <code style="font-size:12px;font-family:JetBrains Mono,monospace">app/routers/auth.py</code></div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">GET /auth/google</code> → build real redirect URL with GOOGLE_CLIENT_ID · <code style="font-size:11px;font-family:JetBrains Mono,monospace">GET /auth/google/callback</code> → exchange code for token using google-auth-oauthlib → save token to integrations table → return JWT</div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-gmail-real" onclick="toggle('t-gmail-real')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Replace simulated Gmail client with real API</div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">app/integrations/gmail.py</code> → load user's stored token from integrations table → <code style="font-size:11px;font-family:JetBrains Mono,monospace">build('gmail','v1')</code> → real list / send / label calls</div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-sheets-real" onclick="toggle('t-sheets-real')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Replace simulated Sheets client with real Sheets API</div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">app/integrations/sheets.py</code> → <code style="font-size:11px;font-family:JetBrains Mono,monospace">build('sheets','v4').spreadsheets().values().append(...)</code> using same stored Google token</div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-test-d1" onclick="toggle('t-test-d1')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Quick test — connect Gmail via real OAuth, create a workflow, run it</div>
+            <div class="task-detail">Try: <em>"Read my 5 latest unread emails and log subjects to Google Sheets"</em> → OpenRouter LLM parses it → test run → step output JSON should show real email subjects from your inbox</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Day 2 -->
+  <div class="section">
+    <div class="section-header">
+      <span class="day-badge" style="background:var(--green-dim);color:var(--green)">DAY 2</span>
+      <div>
+        <div class="section-title">Slack + Notion + Full E2E Test</div>
+        <div class="section-desc">Morning: wire Slack + Notion · Afternoon: test everything together with OpenRouter LLM</div>
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Morning · Slack</div>
+      <div class="task-list">
+
+        <div class="task-item" id="t-s1" onclick="toggle('t-s1')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Create Slack app + get credentials</div>
+            <div class="task-detail">api.slack.com/apps → Create New App → From scratch → "FlowMind" · OAuth & Permissions → Bot Token Scopes: <code style="font-size:11px;font-family:JetBrains Mono,monospace">chat:write channels:read</code> · Redirect URL: <code style="font-size:11px;font-family:JetBrains Mono,monospace">http://localhost:8000/api/v1/integrations/slack/callback</code> · Save Client ID + Secret</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-pkg-s" onclick="toggle('t-pkg-s')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Add Slack env vars + install SDK</div>
+            <div class="task-detail">Add <code style="font-size:11px;font-family:JetBrains Mono,monospace">SLACK_CLIENT_ID</code> and <code style="font-size:11px;font-family:JetBrains Mono,monospace">SLACK_CLIENT_SECRET</code> to .env · <code style="font-size:11px;font-family:JetBrains Mono,monospace">pip install slack-sdk</code></div>
+            <div class="task-tags"><span class="tag tag-setup">Setup</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-slack-route" onclick="toggle('t-slack-route')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Add Slack OAuth connect route in <code style="font-size:12px;font-family:JetBrains Mono,monospace">app/routers/integrations.py</code></div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">GET /integrations/slack/connect</code> → redirect to Slack · <code style="font-size:11px;font-family:JetBrains Mono,monospace">GET /integrations/slack/callback</code> → exchange code → save bot token to integrations table</div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-slack-real" onclick="toggle('t-slack-real')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Replace simulated Slack client with <code style="font-size:12px;font-family:JetBrains Mono,monospace">slack-sdk</code></div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">app/integrations/slack.py</code> → load stored bot token → <code style="font-size:11px;font-family:JetBrains Mono,monospace">WebClient(token=...).chat_postMessage(channel=..., text=...)</code></div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Morning · Notion</div>
+      <div class="task-list">
+
+        <div class="task-item" id="t-n1" onclick="toggle('t-n1')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Create Notion internal integration + get token</div>
+            <div class="task-detail">notion.so/my-integrations → New integration → "FlowMind" · Type: Internal (simpler — no OAuth callback needed) · Copy the Integration Token · Share a Notion page with the integration</div>
+            <div class="task-tags"><span class="tag tag-oauth">OAuth</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-n2" onclick="toggle('t-n2')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Add token to .env + install client</div>
+            <div class="task-detail">Add <code style="font-size:11px;font-family:JetBrains Mono,monospace">NOTION_API_KEY=secret_xxxxxxxxxxxx</code> to .env · <code style="font-size:11px;font-family:JetBrains Mono,monospace">pip install notion-client</code></div>
+            <div class="task-tags"><span class="tag tag-setup">Setup</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-notion-real" onclick="toggle('t-notion-real')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Replace simulated Notion client with <code style="font-size:12px;font-family:JetBrains Mono,monospace">notion-client</code></div>
+            <div class="task-detail"><code style="font-size:11px;font-family:JetBrains Mono,monospace">app/integrations/notion.py</code> → <code style="font-size:11px;font-family:JetBrains Mono,monospace">Client(auth=NOTION_API_KEY).pages.create(...)</code></div>
+            <div class="task-tags"><span class="tag tag-backend">Backend</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sub-section">
+      <div class="sub-title">Afternoon · End-to-End Test with OpenRouter LLM</div>
+
+      <div class="callout callout-green" style="margin-bottom:16px;">
+        <div class="callout-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          This is the main goal of these 2 days
+        </div>
+        <p style="font-size:13px;color:var(--fg-muted);">Describe a workflow in plain English → OpenRouter LLM parses it into steps → executor calls the real APIs → watch results stream live in TestRunPage. This is the complete FlowMind demo.</p>
+      </div>
+
+      <div class="task-list">
+
+        <div class="task-item" id="t-e2e1" onclick="toggle('t-e2e1')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Connect all 4 integrations via OAuth</div>
+            <div class="task-detail">Login → Onboarding page → connect Gmail (real OAuth) → connect Slack → Notion connects via API key automatically → verify all 4 show as connected</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-e2e2" onclick="toggle('t-e2e2')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Test Gmail + Sheets workflow via LLM</div>
+            <div class="task-detail">Describe: <em>"Read my 5 latest unread emails, extract subject and sender, add each as a row to Google Sheets"</em> → LLM should parse this into 2 steps → test run → see real email data in step output</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-e2e3" onclick="toggle('t-e2e3')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Test Slack workflow via LLM</div>
+            <div class="task-detail">Describe: <em>"Send a message to Slack #general channel saying 'FlowMind is live!'"</em> → test run → verify message appears in your Slack workspace</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-e2e4" onclick="toggle('t-e2e4')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Test Notion workflow via LLM</div>
+            <div class="task-detail">Describe: <em>"Create a Notion page titled 'Daily Summary' with today's date"</em> → test run → verify page appears in your Notion workspace</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+        <div class="task-item" id="t-e2e5" onclick="toggle('t-e2e5')">
+          <div class="task-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div class="task-content">
+            <div class="task-title">Fix any errors found during testing</div>
+            <div class="task-detail">Most likely issues: Google token not saved to DB, wrong scope in consent screen, Notion page not shared with integration, Slack channel name typo, token expired</div>
+            <div class="task-tags"><span class="tag tag-test">Test</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Do / Don't -->
+  <div class="section">
+    <div class="section-header">
+      <span class="day-badge" style="background:var(--surface2);color:var(--fg-muted)">NOTES</span>
+      <div><div class="section-title">Do / Don't</div></div>
+    </div>
+
+    <div class="donts-grid">
+      <div class="dont-card do-card">
+        <h4>✓ &nbsp;Do</h4>
+        <div class="note-row"><span>✓</span><span>Use OpenRouter — it replaces TCS exactly, no code changes at all</span></div>
+        <div class="note-row"><span>✓</span><span>Use SQLite — no changes needed, works as-is</span></div>
+        <div class="note-row"><span>✓</span><span>Add yourself as a test user in Google OAuth consent screen (required for external apps)</span></div>
+        <div class="note-row"><span>✓</span><span>Share a Notion page with your integration before testing (Notion requires this)</span></div>
+        <div class="note-row"><span>✓</span><span>Keep simulated clients as fallback — if a token is missing, the simulated version still runs</span></div>
+      </div>
+      <div class="dont-card dont-only">
+        <h4>✗ &nbsp;Leave for TCS</h4>
+        <div class="note-row"><span>✗</span><span>Sprint 4 (DELETE/PAUSE endpoints, run history) — plain CRUD, no LLM needed, do on TCS</span></div>
+        <div class="note-row"><span>✗</span><span>WorkflowDetailPage, Settings, LandingPage — UI pages, do on TCS</span></div>
+        <div class="note-row"><span>✗</span><span>PostgreSQL migration — wait until the deployment sprint</span></div>
+        <div class="note-row"><span>✗</span><span>Redis / Celery — not needed for dev at all</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sprint state -->
+  <div class="callout callout-info">
+    <div class="callout-title">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Sprint state when you return to TCS
+    </div>
+    <div style="font-size:13px;color:var(--fg-muted);display:flex;flex-direction:column;gap:6px;">
+      <div>✅ <strong style="color:var(--fg)">Sprint 1</strong> — Auth + OAuth connect flow</div>
+      <div>✅ <strong style="color:var(--fg)">Sprint 2</strong> — Workflow creation with LangChain AI parser</div>
+      <div>✅ <strong style="color:var(--fg)">Sprint 3</strong> — Execution engine + SSE streaming + TestRunPage</div>
+      <div>✅ <strong style="color:var(--fg)">These 2 days</strong> — Real Gmail, Sheets, Slack, Notion clients working + E2E tested with OpenRouter</div>
+      <div style="margin-top:4px;">🔜 <strong style="color:var(--fg)">Back on TCS → Sprint 4</strong> — DELETE/PAUSE endpoints, run history, WorkflowDetailPage, Settings, LandingPage</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const PREFIX = 'fm-plan-';
+
+  function toggle(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('done');
+    try { localStorage.setItem(PREFIX + id, el.classList.contains('done') ? '1' : '0'); } catch(e){}
+    updateProgress();
+  }
+
+  function resetAll() {
+    document.querySelectorAll('.task-item').forEach(el => {
+      el.classList.remove('done');
+      try { localStorage.removeItem(PREFIX + el.id); } catch(e){}
+    });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    const all = document.querySelectorAll('.task-item');
+    const done = document.querySelectorAll('.task-item.done');
+    const pct = all.length ? (done.length / all.length * 100) : 0;
+    document.getElementById('progress-fill').style.width = pct.toFixed(1) + '%';
+    document.getElementById('progress-label').textContent = done.length + ' / ' + all.length + ' done';
+  }
+
+  function copyCode(id, btn) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    navigator.clipboard.writeText(el.innerText || el.textContent).then(() => {
+      btn.textContent = 'Copied!'; btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+    }).catch(() => {
+      const r = document.createRange(); r.selectNodeContents(el);
+      window.getSelection()?.removeAllRanges(); window.getSelection()?.addRange(r);
+    });
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.task-item').forEach(el => {
+      let v = '0'; try { v = localStorage.getItem(PREFIX + el.id) ?? '0'; } catch(e){}
+      if (v === '1') el.classList.add('done');
+    });
+    updateProgress();
+  });
+</script>

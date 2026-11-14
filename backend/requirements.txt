@@ -9,6 +9,7 @@ psycopg2-binary==2.9.9
 
 # Settings & validation
 pydantic==2.8.2
+pydantic[email]==2.8.2
 pydantic-settings==2.3.4
 python-dotenv==1.0.1
 

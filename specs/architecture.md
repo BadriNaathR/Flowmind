@@ -1,9 +1,11 @@
 # System Architecture — FlowMind
 
-> **Version**: 1.0  
-> **Status**: Draft — Pending Review  
-> **Last Updated**: 2026-11-05  
+> **Version**: 1.1  
+> **Status**: Active  
+> **Last Updated**: 2026-11-13  
 > **Author**: Badri + Claude (Solution Architect)
+>
+> **v1.1 change**: Local DB changed from Docker + PostgreSQL to **SQLite** (TCS dev environment blocks external ports; Docker not available). All other architecture decisions unchanged.
 
 ---
 
@@ -64,10 +66,10 @@ FlowMind is built as a **modern full-stack web application** with a multi-agent 
 | Technology | Choice | Reason |
 |-----------|--------|--------|
 | Primary DB | **PostgreSQL** | Relational, reliable, great for structured workflow data |
-| Local DB | **Docker Compose (postgres:15)** | Zero install, fully reproducible local environment |
-| Production DB | **Neon** (free tier) | Serverless PostgreSQL, 500MB free, just a connection string |
+| Local DB | **SQLite** (file: `flowmind_dev.db`) | TCS dev system: Docker not available, external Postgres ports blocked. SQLite requires zero setup. Switch to Postgres at deploy time. |
+| Production DB | **Supabase** (free tier) | Serverless PostgreSQL, connection pooler on port 6543, just a connection string |
 | Cache / Queue | **Redis** | Task queue (Celery), session cache, real-time pub/sub |
-| Local Redis | **Docker Compose (redis:7)** | Same docker-compose.yml as postgres |
+| Local Redis | **Docker Compose (redis:7)** | Same docker-compose.yml as postgres (used on OpenRouter system) |
 | Production Redis | **Railway addon** | Free tier, same platform as backend |
 | File Storage | **None in MVP** | No files stored — only metadata |
 | Hosting (Frontend) | **Vercel** | Free tier, instant deploy, perfect for React + Vite |
@@ -350,8 +352,8 @@ flowmind/
 | LLM abstraction | Single `llm_client.py` | Direct SDK calls everywhere | One file to change when switching providers — clean separation |
 | Local LLM | TCS GenAI Lab API | Anthropic direct | Free internal access, no cost during development |
 | Production LLM | OpenRouter (free models) | Anthropic API | Zero cost for portfolio demo |
-| Local DB | Docker Compose | Local PostgreSQL install | Reproducible, no machine pollution, one command setup |
-| Production DB | Neon (free) | Railway PostgreSQL | Serverless, generous free tier, simple connection string |
+| Local DB (dev) | SQLite | Docker Compose, Local PostgreSQL | TCS system: Docker unavailable, external Postgres ports blocked by firewall. SQLite = zero setup, identical SQLAlchemy ORM code. |
+| Production DB | Supabase (free) | Neon, Railway PostgreSQL | Free tier PostgreSQL, easy connection string, no server to manage. Run `alembic upgrade head` at deploy time. |
 | Backend language | Python (FastAPI) | Node.js | AI libraries, Celery, LangChain all Python-native |
 | Agent framework | Custom Python | LangChain Agents | Full control, no abstraction overhead, cleaner portfolio code |
 | Real-time | SSE | WebSocket | SSE is simpler, one-directional, perfect for log streaming |

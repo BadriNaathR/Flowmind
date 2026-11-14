@@ -1,9 +1,11 @@
 # Database & API Design — FlowMind
 
-> **Version**: 1.0  
-> **Status**: Draft — Pending Review  
-> **Last Updated**: 2026-11-05  
+> **Version**: 1.1  
+> **Status**: Active  
+> **Last Updated**: 2026-11-13  
 > **Author**: Badri + Claude (Solution Architect)
+>
+> **v1.1 change**: Users table updated for dual auth (Sprint 1b) — `google_id` now nullable, `password_hash` added. Two new auth endpoints: `POST /auth/register` and `POST /auth/login`. All other schema and endpoints unchanged.
 
 ---
 
@@ -32,22 +34,26 @@ Stores authenticated user accounts.
 | Column | Type | Constraints | Description |
 |--------|------|-------------|-------------|
 | id | UUID | PK, default gen_random_uuid() | Unique user identifier |
-| email | VARCHAR(255) | UNIQUE, NOT NULL | Google email |
+| email | VARCHAR(255) | UNIQUE, NOT NULL | User email |
 | name | VARCHAR(255) | NOT NULL | Display name |
 | avatar_url | TEXT | NULLABLE | Google profile picture URL |
-| google_id | VARCHAR(255) | UNIQUE, NOT NULL | Google OAuth subject ID |
+| google_id | VARCHAR(255) | UNIQUE, **NULLABLE** | Google OAuth subject ID — null for email/password users |
+| password_hash | VARCHAR(255) | **NULLABLE** | bcrypt hash — null for Google-only users *(added Sprint 1b)* |
 | created_at | TIMESTAMP | NOT NULL, default NOW() | Account creation time |
 | updated_at | TIMESTAMP | NOT NULL, default NOW() | Last update time |
 
+> **Sprint 1b change**: Dual authentication added. `google_id` made nullable to allow pure email/password accounts. `password_hash` added for email/password login. A user may have both (linked account) or one of the two.
+
 ```sql
 CREATE TABLE users (
-    id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    email       VARCHAR(255) UNIQUE NOT NULL,
-    name        VARCHAR(255) NOT NULL,
-    avatar_url  TEXT,
-    google_id   VARCHAR(255) UNIQUE NOT NULL,
-    created_at  TIMESTAMP NOT NULL DEFAULT NOW(),
-    updated_at  TIMESTAMP NOT NULL DEFAULT NOW()
+    id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email         VARCHAR(255) UNIQUE NOT NULL,
+    name          VARCHAR(255) NOT NULL,
+    avatar_url    TEXT,
+    google_id     VARCHAR(255) UNIQUE,          -- nullable: null for email/password users
+    password_hash VARCHAR(255),                  -- nullable: null for Google-only users
+    created_at    TIMESTAMP NOT NULL DEFAULT NOW(),
+    updated_at    TIMESTAMP NOT NULL DEFAULT NOW()
 );
 ```
 
@@ -253,6 +259,38 @@ CREATE INDEX idx_logs_run_id ON workflow_run_logs(run_id);
 ---
 
 ### 2.1 Auth Routes
+
+#### `POST /api/v1/auth/register` *(added Sprint 1b)*
+Create a new account with email and password.
+
+**Request**:
+```json
+{ "name": "Badri", "email": "badri@example.com", "password": "MyPassword123" }
+```
+
+**Response** `201`:
+```json
+{ "access_token": "eyJ...", "token_type": "bearer", "user": { "id": "uuid", "email": "...", "name": "..." } }
+```
+
+---
+
+#### `POST /api/v1/auth/login` *(added Sprint 1b)*
+Login with email and password.
+
+**Request**:
+```json
+{ "email": "badri@example.com", "password": "MyPassword123" }
+```
+
+**Response** `200`:
+```json
+{ "access_token": "eyJ...", "token_type": "bearer", "user": { ... } }
+```
+
+> If the email exists but was registered via Google OAuth, returns `400` with detail: *"This account uses Google Sign-In. Please use the Google login button."*
+
+---
 
 #### `GET /api/v1/auth/google`
 Redirect user to Google OAuth consent screen.

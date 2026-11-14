@@ -2,7 +2,7 @@ import sys
 from pathlib import Path
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 # Make sure the backend/ directory is on the path so app.* imports work
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -14,15 +14,15 @@ from app.core.database import Base
 import app.models  # noqa: F401
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
-
 target_metadata = Base.metadata
+
+# Re-use the same URL parser from database.py so both share the same logic
+from app.core.database import _db_url as _DB_URL
 
 
 def run_migrations_offline() -> None:
-    url = config.get_main_option("sqlalchemy.url")
     context.configure(
-        url=url,
+        url=_DB_URL,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -32,11 +32,16 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
+    from sqlalchemy import event
+
+    connectable = create_engine(_DB_URL, poolclass=pool.NullPool)
+
+    # Port 6543 = Supabase transaction pooler — disable prepared statements
+    if _DB_URL.port == 6543:
+        @event.listens_for(connectable, "connect")
+        def _no_prepared(dbapi_conn, _record):
+            dbapi_conn.prepare_threshold = 0
+
     with connectable.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
         with context.begin_transaction():

@@ -1,8 +1,8 @@
 # Test Plan — FlowMind
 
-> **Version**: 1.0  
-> **Status**: Complete  
-> **Last Updated**: 2026-11-05  
+> **Version**: 1.1  
+> **Status**: Active  
+> **Last Updated**: 2026-11-13  
 > **Author**: Badri + Claude (QA)  
 > **Linked Spec**: `product-spec.md` v1.1 (US-001 through US-015)
 
@@ -39,9 +39,10 @@ Tests are derived **directly from the Given/When/Then acceptance criteria** in `
 
 | Environment | Purpose | DB | LLM |
 |-------------|---------|-----|-----|
-| Local (dev) | Development testing | SQLite in-memory | TCS GenAI Lab (local) |
+| Local — TCS system | Development testing | **SQLite** (`flowmind_dev.db`) | TCS GenAI Lab (local) |
+| Local — OpenRouter system | Integration testing | PostgreSQL via Docker Compose | OpenRouter (mocked in tests) |
 | CI (GitHub Actions) | Automated on every PR | PostgreSQL (testcontainers) | Mocked responses |
-| Staging | Pre-deploy smoke tests | Neon PostgreSQL (staging DB) | OpenRouter |
+| Staging / Production | Pre-deploy smoke tests | **Supabase** PostgreSQL | OpenRouter |
 
 ---
 

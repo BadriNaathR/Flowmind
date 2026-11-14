@@ -52,7 +52,7 @@
 | 5. Database & API Design | ✅ Done | `specs/api-spec.md` |
 | 6. Implementation Planning | ✅ Done | `specs/implementation-plan.md` |
 | 6a. Test Plan | ✅ Done | `specs/test-plan.md` — 90 unit, 34 integration, 10 E2E tests defined |
-| 7. Development & Testing | 🔄 In Progress | Sprint 0 ✅ complete — Sprint 1 next |
+| 7. Development & Testing | 🔄 In Progress | Sprint 0 ✅ · Sprint 1 ✅ · Sprint 1b ✅ · Sprint 2 ✅ · Sprint 3 ✅ complete — Sprint 4 next |
 
 ---
 
@@ -170,11 +170,85 @@
 - [ ] `alembic upgrade head` — run after PostgreSQL is available
 - [ ] Alternative: install PostgreSQL locally OR use Supabase free tier
 
-**Next action**: Sprint 1 — Auth + Onboarding
-- Google OAuth flow (backend `GET /auth/google` + callback)
-- JWT token creation + protected route middleware
-- Integration connect flow (Gmail, Slack, Sheets, Notion OAuth)
-- Beautiful onboarding UI (step 1: connect tools)
+## Sprint 1 — ✅ COMPLETE (2026-11-12)
+
+#### Backend ✅
+- [x] `app/schemas/auth.py` — `UserOut`, `TokenOut` Pydantic schemas
+- [x] `app/schemas/integration.py` — `IntegrationOut`, `ConnectPayload` schemas
+- [x] `app/dependencies.py` — `get_current_user` JWT dependency (HTTPBearer → decode → DB lookup)
+- [x] `app/routers/auth.py` — `GET /auth/google` (OAuth redirect) + `GET /auth/google/callback` (exchange code, upsert user, return JWT) + `GET /auth/me`
+- [x] `app/routers/integrations.py` — `GET /integrations` (list all 4) + `POST /integrations/{provider}/connect` (mock OAuth, stores placeholder) + `DELETE /integrations/{provider}`
+- [x] `app/main.py` updated — routers registered at `/api/v1/auth` and `/api/v1/integrations`
+
+#### Frontend ✅
+- [x] `src/pages/AuthCallbackPage.tsx` — reads `?token=` from Google redirect, stores JWT, calls `/auth/me`, navigates to onboarding
+- [x] `src/pages/OnboardingPage.tsx` — full implementation: 4 integration cards (Gmail, Slack, Sheets, Notion), animated connect states, radial glow, staggered entry animation, "Continue to Dashboard" appears after first connect
+- [x] `src/store/auth.ts` — added `fetchMe()` action
+- [x] `src/App.tsx` — added `/auth/callback` route
+
+#### Sprint 1b — Added (2026-11-12): Dual Auth
+- [x] `app/models/user.py` — `google_id` made nullable, `password_hash` column added
+- [x] `alembic/versions/0002_add_password_auth.py` — migration for the two new columns
+- [x] `app/core/security.py` — `hash_password()` / `verify_password()` using bcrypt (passlib)
+- [x] `app/schemas/auth.py` — `LoginPayload`, `RegisterPayload` (with EmailStr)
+- [x] `app/routers/auth.py` — `POST /auth/register`, `POST /auth/login`; Google callback links accounts if same email exists; passes `?onboard=0/1` to frontend
+- [x] `frontend/src/pages/LoginPage.tsx` — email+password form + "or" divider + Google button + link to Register
+- [x] `frontend/src/pages/RegisterPage.tsx` — name/email/password with strength hint, navigates to /onboarding on success
+- [x] `frontend/src/App.tsx` — `/register` route added
+- [x] `frontend/src/pages/AuthCallbackPage.tsx` — reads `?onboard` flag, routes new users → /onboarding, returning users → /dashboard
+
+#### Pending (needs DB)
+- [ ] `alembic upgrade head` — once PostgreSQL is available (Docker or Supabase)
+- [ ] Add real `GOOGLE_CLIENT_ID` + `GOOGLE_CLIENT_SECRET` to `.env` for live Google OAuth
+
+## Sprint 2 — ✅ COMPLETE (2026-11-13)
+
+#### Backend ✅
+- [x] `app/agents/workflow_agent.py` — LangChain `ChatOpenAI` Parser Agent (TCS local → OpenRouter production)
+- [x] `app/schemas/workflow.py` — `WorkflowCreate`, `WorkflowOut`, `WorkflowListItem` Pydantic schemas
+- [x] `app/routers/workflows.py` — `POST /workflows` (LLM + save), `GET /workflows`, `GET /workflows/{id}`, `PATCH /workflows/{id}/activate`
+- [x] All endpoints verified with tests (mocked LLM)
+
+#### Frontend ✅
+- [x] `CreateWorkflowPage` — large NL textarea, 4 example prompts, ⌘↵ shortcut, animated generate button
+- [x] `AIProcessingPage` — 4 animated stages, calls `POST /api/v1/workflows`, progress dots, error state
+- [x] `WorkflowPreviewPage` — trigger card + step cards with integration badges + Activate button
+- [x] `DashboardPage` — real workflow list from API, status badges, empty state CTA, greeting
+- [x] TypeScript: 0 errors
+
+#### Pending (Sprint 2 polish — deferred to after Sprint 3)
+- [ ] `POST /api/v1/workflows/parse` — separate SSE streaming endpoint for real-time AI thinking
+- [ ] `ConfirmationPage` — AI shows understanding, user confirms or corrects
+- [ ] Correction/re-parse flow (US-014)
+- [ ] `useWorkflowStream` SSE hook
+
+## Sprint 3 — ✅ COMPLETE (2026-11-13)
+
+#### Backend ✅
+- [x] `app/integrations/gmail.py` — simulated Gmail client (read, send, reply, label, extract)
+- [x] `app/integrations/slack.py` — simulated Slack client (post, DM)
+- [x] `app/integrations/sheets.py` — simulated Sheets client (append, read, update)
+- [x] `app/integrations/notion.py` — simulated Notion client (create, update, search)
+- [x] `app/integrations/base.py` — GenericClient fallback (http, internal)
+- [x] `app/agents/executor.py` — async generator, runs steps via asyncio.to_thread, logs to DB
+- [x] `app/routers/executions.py` — `POST /workflows/{id}/test` + `GET /stream/{run_id}` SSE
+- [x] `app/dependencies.py` — `get_current_user_query` for EventSource JWT auth (query param)
+- [x] SSL fix: `httpx.Client(verify=False)` for TCS corporate endpoint in workflow_agent.py
+
+#### Frontend ✅
+- [x] `src/hooks/useRunStream.ts` — EventSource hook with status tracking
+- [x] `src/components/LogEntry.tsx` — step card: spinner→check/X, expandable JSON output
+- [x] `src/pages/TestRunPage.tsx` — progress bar, live log stream, Activate button on success
+- [x] `WorkflowPreviewPage` — added "Test Run" button between Regenerate and Activate
+
+**Next action**: Sprint 4 — Dashboard + Workflow Management
+- Execution engine (`agents/executor.py`) — run steps in sequence, log each step
+- Integration clients: `gmail.py`, `slack.py`, `sheets.py`, `notion.py`
+- `POST /api/v1/workflows/{id}/test` — test run (SSE streaming logs)
+- `GET /api/v1/stream/{run_id}` — live log stream
+- `POST /api/v1/workflows/{id}/activate` — start trigger watcher
+- Celery task: `execute_workflow(workflow_id, trigger_data)`
+- `TestRunPage` — real-time log panel with step-by-step updates
 
 ---
 
@@ -187,4 +261,4 @@
 
 ---
 
-*Last updated: 2026-11-05 | Session 4 — Sprint 0 complete. Health check verified, frontend running. Sprint 1 (Auth + Onboarding) is next.*
+*Last updated: 2026-11-13 | Session 6 — Sprint 2 complete. LangChain Parser Agent + Workflow CRUD backend + 4 frontend pages built. Sprint 3 (Execution Engine) is next.*

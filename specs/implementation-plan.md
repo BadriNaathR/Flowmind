@@ -1,9 +1,11 @@
 # Implementation Plan — FlowMind
 
-> **Version**: 1.0  
-> **Status**: Draft — Pending Review  
-> **Last Updated**: 2026-11-05  
+> **Version**: 1.2  
+> **Status**: Active — In Development  
+> **Last Updated**: 2026-11-13  
 > **Author**: Badri + Claude (Solution Architect)
+>
+> **v1.2 change**: Sprint 0, 1, 1b, and 2 marked complete. Dev environment note: SQLite used on TCS system (no Docker). All sprint goals and task lists remain as spec'd.
 
 ---
 
@@ -28,8 +30,10 @@ flowmind/
 
 ## 2. Sprint Plan
 
-### Sprint 0 — Project Setup (2–3 days)
+### Sprint 0 — Project Setup ✅ COMPLETE (2026-11-05)
 **Goal**: Both apps running locally with DB connected. Nothing functional yet, just scaffolding.
+
+> **Dev note**: `docker-compose up` replaced by SQLite on TCS system. `GET /api/v1/health` verified returning `{"status":"ok","env":"local"}`.
 
 #### Backend Tasks
 - [ ] Init FastAPI project with folder structure from `architecture.md`
@@ -54,9 +58,11 @@ flowmind/
 
 **Sprint 0 Done When**: `docker-compose up` starts everything, health check returns 200, React app loads with dark background.
 
+✅ **Done** — SQLite auto-creates tables on startup. Health check `{"status":"ok","env":"local"}` verified. React app running on `http://localhost:5174`.
+
 ---
 
-### Sprint 1 — Auth + Onboarding (3–4 days)
+### Sprint 1 — Auth + Onboarding ✅ COMPLETE (2026-11-12)
 **Goal**: User can sign up with Google, connect integrations, land on dashboard.
 
 **Spec Reference**: US-001, US-002, US-003 | Screens 2, 3
@@ -83,9 +89,13 @@ flowmind/
 
 **Sprint 1 Done When**: Full auth + integration connect flow works end to end.
 
+✅ **Done** — Google OAuth + email/password dual auth. Register, Login, /auth/me, Integrations CRUD all verified. Onboarding page with animated integration cards complete.
+
+**Sprint 1b** (added): Dual auth — `POST /auth/register`, `POST /auth/login`, `password_hash` column, `google_id` nullable. `LoginPage` + `RegisterPage` built.
+
 ---
 
-### Sprint 2 — Workflow Creation (AI Core) (5–6 days)
+### Sprint 2 — Workflow Creation (AI Core) ✅ COMPLETE (2026-11-13)
 **Goal**: User types a workflow in plain English, AI parses it, user confirms, workflow is saved.
 
 **Spec Reference**: US-004, US-005, US-006 | Screens 5, 6, 7, 8
@@ -115,6 +125,10 @@ flowmind/
 - [ ] Zustand workflow store (draft workflow state)
 
 **Sprint 2 Done When**: User types a workflow, sees AI thinking in real-time, confirms, sees visual flowchart, workflow saved to DB.
+
+✅ **Done** — `POST /api/v1/workflows` calls LangChain Parser Agent, saves to DB. `GET /workflows`, `GET /workflows/{id}`, `PATCH /workflows/{id}/activate` all working. `CreateWorkflowPage` → `AIProcessingPage` → `WorkflowPreviewPage` → `DashboardPage` all built. TypeScript clean (0 errors). All endpoints verified with tests.
+
+> **Note**: `/workflows/parse` SSE streaming and `ConfirmationPage` (AI correction flow) are planned for Sprint 2 polish — the core create/save/preview/activate flow is complete. `useWorkflowStream` hook deferred to streaming phase.
 
 ---
 

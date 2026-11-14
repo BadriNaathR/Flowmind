@@ -48,17 +48,18 @@ export interface WorkflowStep {
   type: string;
   integration: string;
   action: string;
-  params: Record<string, unknown>;
+  params: Record<string, string | number | boolean>;
 }
 
 export interface Workflow {
   id: string;
   name: string;
+  raw_input: string;
   status: "draft" | "active" | "paused" | "failed";
   run_count: number;
   last_run_at: string | null;
   created_at: string;
-  trigger: Record<string, unknown>;
+  trigger: Record<string, string>;
   steps: WorkflowStep[];
 }
 

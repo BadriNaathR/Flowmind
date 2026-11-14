@@ -1,8 +1,8 @@
 # Product Specification — AI Workflow Automation Platform
 
-> **Version**: 1.1  
-> **Status**: Complete  
-> **Last Updated**: 2026-11-05  
+> **Version**: 1.2  
+> **Status**: Active  
+> **Last Updated**: 2026-11-13  
 > **Author**: Badri + Claude (PM/BA/SA)
 
 ---
@@ -90,12 +90,24 @@ A conversational interface where the user says what they want, and FlowMind's AI
 
 ### Authentication
 
-**US-001**: As a user, I want to sign up and log in with my Google account so I don't need to remember a new password.
+**US-001**: As a user, I want to sign up and log in — either with my Google account or with email and password — so I have flexibility in how I access FlowMind. *(updated Sprint 1b: dual auth added)*
 
 **Acceptance Criteria**:
 - **Given** I am on the login page  
   **When** I click "Continue with Google" and authorize FlowMind in the Google consent screen  
   **Then** I am authenticated and redirected to the Onboarding screen (first time) or Dashboard (returning user)
+
+- **Given** I am on the register page  
+  **When** I fill in my name, email, and password and click "Create Account"  
+  **Then** my account is created and I am redirected to the Onboarding screen
+
+- **Given** I am on the login page  
+  **When** I enter my email and password and click "Sign In"  
+  **Then** I am authenticated and redirected to the Dashboard
+
+- **Given** I try to log in with email/password but the account was created via Google OAuth  
+  **When** I submit the form  
+  **Then** I see: *"This account uses Google Sign-In. Please use the Google login button."*
 
 - **Given** I am a returning user with an active session  
   **When** I open the FlowMind app  

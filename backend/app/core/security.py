@@ -1,10 +1,21 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
+import bcrypt as _bcrypt
 from cryptography.fernet import Fernet
 from jose import JWTError, jwt
 
 from app.core.config import settings
+
+
+# ─── Password hashing ─────────────────────────────────────────────────────────
+
+def hash_password(plain: str) -> str:
+    return _bcrypt.hashpw(plain.encode(), _bcrypt.gensalt()).decode()
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return _bcrypt.checkpw(plain.encode(), hashed.encode())
 
 
 # ─── JWT ──────────────────────────────────────────────────────────────────────
