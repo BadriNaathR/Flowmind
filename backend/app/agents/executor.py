@@ -19,19 +19,82 @@ from app.models.workflow_run import WorkflowRun, RunStatus
 from app.models.workflow_run_log import WorkflowRunLog, StepStatus
 
 
-def _get_client(integration: str):
+def _load_token(integration: str, user_id: uuid.UUID, db: Session) -> dict:
+    from app.models.integration import Integration
+    from app.core.security import decrypt_token
+
+    row = (
+        db.query(Integration)
+        .filter(Integration.user_id == user_id, Integration.provider == integration)
+        .first()
+    )
+    if not row:
+        return {}
+    result: dict = {}
+    try:
+        result["access_token"] = decrypt_token(row.access_token)
+    except Exception:
+        pass
+    if row.refresh_token:
+        try:
+            result["refresh_token"] = decrypt_token(row.refresh_token)
+        except Exception:
+            pass
+    result["expires_at"] = row.expires_at
+    return result
+
+
+def _enrich_params(params: dict, context: dict) -> dict:
+    """
+    Merge data collected from previous step outputs into the current step's params.
+    This is what makes steps chain: Gmail output flows into Notion title, Slack message, etc.
+    """
+    enriched = dict(params)
+
+    # Pull email data if a previous Gmail step ran
+    emails = context.get("emails", [])
+    if emails and isinstance(emails, list) and len(emails) > 0:
+        first = emails[0]
+        subject = first.get("subject", "")
+        from_addr = first.get("from", "")
+        snippet = first.get("snippet", "")
+        summary = f"From: {from_addr}\nSubject: {subject}\n{snippet}".strip()
+
+        enriched.setdefault("title", subject or "Email Task")
+        enriched.setdefault("message", summary)
+        enriched.setdefault("text", summary)
+        enriched.setdefault("body", summary)
+
+    # Pull Notion page URL if a previous Notion step ran
+    if context.get("url") and "message" in enriched:
+        enriched["message"] = enriched["message"] + f"\nNotion page: {context['url']}"
+        enriched["text"] = enriched["message"]
+
+    return enriched
+
+
+def _get_client(integration: str, user_id: uuid.UUID, db: Session):
+    token = _load_token(integration, user_id, db)
     if integration == "gmail":
         from app.integrations.gmail import GmailClient
-        return GmailClient()
+        return GmailClient(
+            access_token=token.get("access_token"),
+            refresh_token=token.get("refresh_token"),
+            expires_at=token.get("expires_at"),
+        )
     if integration == "slack":
         from app.integrations.slack import SlackClient
-        return SlackClient()
+        return SlackClient(bot_token=token.get("access_token"))
     if integration == "sheets":
         from app.integrations.sheets import SheetsClient
-        return SheetsClient()
+        return SheetsClient(
+            access_token=token.get("access_token"),
+            refresh_token=token.get("refresh_token"),
+            expires_at=token.get("expires_at"),
+        )
     if integration == "notion":
         from app.integrations.notion import NotionClient
-        return NotionClient()
+        return NotionClient(api_key=token.get("access_token"))
     from app.integrations.base import GenericClient
     return GenericClient()
 
@@ -57,12 +120,14 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
     }
 
     overall_success = True
+    # Accumulates output data from each step so later steps can use it
+    run_context: dict = {}
 
     for i, step in enumerate(steps):
         step_id = step.get("step_id", f"step_{i + 1}")
         integration = step.get("integration", "internal")
         action = step.get("action", "execute")
-        params = step.get("params", {})
+        params = _enrich_params(step.get("params", {}), run_context)
 
         log = WorkflowRunLog(
             id=uuid.uuid4(),
@@ -87,7 +152,7 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
 
         t0 = time.monotonic()
         try:
-            client = _get_client(integration)
+            client = _get_client(integration, workflow.user_id, db)
             output = await asyncio.to_thread(client.execute, action, params)
             duration_ms = int((time.monotonic() - t0) * 1000)
 
@@ -95,6 +160,10 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
             log.completed_at = datetime.now(timezone.utc)
             log.output_data = output
             db.commit()
+
+            # Feed this step's output into context for all subsequent steps
+            if isinstance(output, dict):
+                run_context.update({k: v for k, v in output.items() if not k.startswith("_")})
 
             yield {
                 "type": "step_completed",

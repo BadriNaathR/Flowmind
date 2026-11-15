@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Plus, Zap, Clock, CheckCircle, PauseCircle, AlertCircle, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Plus, Zap, Clock, CheckCircle, PauseCircle, AlertCircle, Play, Pause, Trash2, History } from "lucide-react";
 import { useAuthStore } from "@/store/auth";
 import api, { type Workflow } from "@/lib/api";
 
@@ -29,8 +29,20 @@ function StatusBadge({ status }: { status: Workflow["status"] }) {
 
 // ─── Workflow card ────────────────────────────────────────────────────────────
 
-function WorkflowCard({ wf, index }: { wf: Workflow; index: number }) {
+function WorkflowCard({
+  wf,
+  index,
+  onDelete,
+  onTogglePause,
+}: {
+  wf: Workflow;
+  index: number;
+  onDelete: (id: string) => void;
+  onTogglePause: (id: string, newStatus: Workflow["status"]) => void;
+}) {
   const navigate = useNavigate();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   const relativeDate = (iso: string | null) => {
     if (!iso) return "Never";
@@ -41,14 +53,39 @@ function WorkflowCard({ wf, index }: { wf: Workflow; index: number }) {
     return `${days} days ago`;
   };
 
+  async function handleDelete(e: React.MouseEvent) {
+    e.stopPropagation();
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    setBusy(true);
+    try {
+      await api.delete(`/workflows/${wf.id}`);
+      onDelete(wf.id);
+    } finally {
+      setBusy(false);
+      setConfirmDelete(false);
+    }
+  }
+
+  async function handlePause(e: React.MouseEvent) {
+    e.stopPropagation();
+    setBusy(true);
+    try {
+      const res = await api.patch(`/workflows/${wf.id}/pause`);
+      onTogglePause(wf.id, res.data.status);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const isPaused = wf.status === "paused";
+  const isActive = wf.status === "active";
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, x: -20, height: 0, marginBottom: 0 }}
       transition={{ delay: 0.05 * index }}
-      whileHover={{ y: -2 }}
-      onClick={() => navigate(`/workflow/${wf.id}`)}
-      className="cursor-pointer"
       style={{
         background: "var(--surface)",
         border: "1px solid var(--border)",
@@ -63,15 +100,17 @@ function WorkflowCard({ wf, index }: { wf: Workflow; index: number }) {
       onMouseLeave={(e) => {
         (e.currentTarget as HTMLElement).style.borderColor = "var(--border)";
         (e.currentTarget as HTMLElement).style.boxShadow = "none";
+        setConfirmDelete(false);
       }}
     >
       <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
+        {/* Left — name + meta */}
+        <div
+          className="flex-1 min-w-0 cursor-pointer"
+          onClick={() => navigate(`/workflow/${wf.id}`)}
+        >
           <div className="flex items-center gap-2 mb-1.5">
-            <h3
-              className="font-semibold text-sm truncate"
-              style={{ color: "var(--fg)" }}
-            >
+            <h3 className="font-semibold text-sm truncate" style={{ color: "var(--fg)" }}>
               {wf.name}
             </h3>
             <StatusBadge status={wf.status} />
@@ -85,12 +124,71 @@ function WorkflowCard({ wf, index }: { wf: Workflow; index: number }) {
               <Clock size={10} />
               Last run: {relativeDate(wf.last_run_at)}
             </span>
-            <span>
-              Created {relativeDate(wf.created_at)}
-            </span>
+            <span>Created {relativeDate(wf.created_at)}</span>
           </div>
         </div>
-        <ChevronRight size={16} style={{ color: "var(--fg-subtle)", flexShrink: 0 }} />
+
+        {/* Right — actions */}
+        <div className="flex items-center gap-1.5 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+          {/* Run history */}
+          <button
+            onClick={() => navigate(`/workflow/${wf.id}/history`)}
+            title="Run history"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: "var(--fg-muted)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--fg)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--fg-muted)")}
+          >
+            <History size={15} />
+          </button>
+
+          {/* Test run */}
+          <button
+            onClick={() => navigate(`/workflow/test?id=${wf.id}`)}
+            title="Run test"
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: "var(--fg-muted)" }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--accent)")}
+            onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.color = "var(--fg-muted)")}
+          >
+            <Play size={15} />
+          </button>
+
+          {/* Pause / Resume — only for active or paused workflows */}
+          {(isActive || isPaused) && (
+            <button
+              onClick={handlePause}
+              disabled={busy}
+              title={isPaused ? "Resume" : "Pause"}
+              className="p-1.5 rounded-lg transition-colors"
+              style={{ color: isPaused ? "#22c55e" : "#f59e0b", opacity: busy ? 0.5 : 1 }}
+            >
+              {isPaused ? <Play size={15} /> : <Pause size={15} />}
+            </button>
+          )}
+
+          {/* Delete */}
+          <button
+            onClick={handleDelete}
+            disabled={busy}
+            title={confirmDelete ? "Click again to confirm" : "Delete"}
+            className="p-1.5 rounded-lg transition-colors"
+            style={{ color: confirmDelete ? "#ef4444" : "var(--fg-muted)", opacity: busy ? 0.5 : 1 }}
+            onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.color = "#ef4444")}
+            onMouseLeave={(e) => {
+              if (!confirmDelete)
+                (e.currentTarget as HTMLElement).style.color = "var(--fg-muted)";
+            }}
+          >
+            <Trash2 size={15} />
+          </button>
+
+          {confirmDelete && (
+            <span className="text-xs font-semibold" style={{ color: "#ef4444" }}>
+              Click again
+            </span>
+          )}
+        </div>
       </div>
     </motion.div>
   );
@@ -162,6 +260,14 @@ export default function DashboardPage() {
     return "Good evening";
   };
 
+  function handleDelete(id: string) {
+    setWorkflows((prev) => prev.filter((w) => w.id !== id));
+  }
+
+  function handleTogglePause(id: string, newStatus: Workflow["status"]) {
+    setWorkflows((prev) => prev.map((w) => w.id === id ? { ...w, status: newStatus } : w));
+  }
+
   return (
     <div className="min-h-screen px-4 py-10" style={{ background: "var(--bg)" }}>
       {/* Background glow */}
@@ -229,11 +335,19 @@ export default function DashboardPage() {
         ) : workflows.length === 0 ? (
           <EmptyState onNew={() => navigate("/workflow/create")} />
         ) : (
-          <div className="space-y-3">
-            {workflows.map((wf, i) => (
-              <WorkflowCard key={wf.id} wf={wf} index={i} />
-            ))}
-          </div>
+          <AnimatePresence>
+            <div className="space-y-3">
+              {workflows.map((wf, i) => (
+                <WorkflowCard
+                  key={wf.id}
+                  wf={wf}
+                  index={i}
+                  onDelete={handleDelete}
+                  onTogglePause={handleTogglePause}
+                />
+              ))}
+            </div>
+          </AnimatePresence>
         )}
 
         {/* Settings link */}

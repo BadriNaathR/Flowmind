@@ -13,10 +13,12 @@ interface AuthState {
   fetchMe: () => Promise<void>;
 }
 
+const _initialToken = localStorage.getItem("fm_token");
+
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
+  token: _initialToken,
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: !!_initialToken,
 
   setToken: (token) => {
     localStorage.setItem("fm_token", token);

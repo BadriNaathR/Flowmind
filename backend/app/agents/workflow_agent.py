@@ -41,6 +41,12 @@ Rules:
 - Use only these integrations: gmail, slack, sheets, notion, http, internal.
 - Keep params simple — string keys and string/number/boolean values only.
 - The trigger type must be one of: schedule, webhook, manual, email, event.
+
+Integration-specific params:
+- notion: always include "parent_id": "4194b6e5-60ab-806d-83dd-e21fea75a29b" (FlowMind Tasks page) in every notion step params.
+- slack: always use "channel": "#new-channel" unless the user specifies a different channel.
+- gmail: include "to" and "subject" for send actions.
+- sheets: include "sheet": "Sheet1" for all sheet actions.
 """
 
 

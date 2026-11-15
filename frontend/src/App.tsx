@@ -14,6 +14,7 @@ import ConfirmationPage from "@/pages/ConfirmationPage";
 import WorkflowPreviewPage from "@/pages/WorkflowPreviewPage";
 import TestRunPage from "@/pages/TestRunPage";
 import WorkflowDetailPage from "@/pages/WorkflowDetailPage";
+import RunHistoryPage from "@/pages/RunHistoryPage";
 import SettingsPage from "@/pages/SettingsPage";
 import ProtectedRoute from "@/components/layout/ProtectedRoute";
 
@@ -42,6 +43,8 @@ export default function App() {
           <Route path="/workflow/create/confirm" element={<ConfirmationPage />} />
           <Route path="/workflow/create/preview" element={<WorkflowPreviewPage />} />
           <Route path="/workflow/create/test" element={<TestRunPage />} />
+          <Route path="/workflow/test" element={<TestRunPage />} />
+          <Route path="/workflow/:id/history" element={<RunHistoryPage />} />
           <Route path="/workflow/:id" element={<WorkflowDetailPage />} />
           <Route path="/settings" element={<SettingsPage />} />
         </Route>

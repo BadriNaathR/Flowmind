@@ -37,7 +37,7 @@ export function useRunStream(runId: string | null) {
   useEffect(() => {
     if (!runId) return;
 
-    const token = localStorage.getItem("token") ?? "";
+    const token = localStorage.getItem("fm_token") ?? "";
     setStreamStatus("connecting");
     setEvents([]);
 

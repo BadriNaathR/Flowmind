@@ -1,4 +1,10 @@
+import os
 from pydantic_settings import BaseSettings
+
+# Always resolve .env relative to this file (backend/app/core/config.py → backend/.env)
+_ENV_FILE = os.path.normpath(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", ".env")
+)
 
 
 class Settings(BaseSettings):
@@ -24,6 +30,16 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_ID: str = ""
     GOOGLE_CLIENT_SECRET: str = ""
     GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/google/callback"
+    GOOGLE_INTEGRATION_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/google/callback"
+
+    # Slack OAuth
+    SLACK_CLIENT_ID: str = ""
+    SLACK_CLIENT_SECRET: str = ""
+    SLACK_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/slack/callback"
+    SLACK_BOT_TOKEN: str = ""
+
+    # Notion
+    NOTION_API_KEY: str = ""
 
     # LLM — Local (TCS GenAI Lab)
     TCS_API_KEY: str = ""
@@ -39,7 +55,7 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = "http://localhost:5173"
 
     class Config:
-        env_file = ".env"
+        env_file = _ENV_FILE
         extra = "ignore"
 
 

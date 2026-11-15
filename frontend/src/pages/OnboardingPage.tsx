@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, ArrowRight, Loader2 } from "lucide-react";
 import api from "@/lib/api";
@@ -203,22 +203,71 @@ function IntegrationCard({
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [connecting, setConnecting] = useState<string | null>(null);
   const [connected, setConnected] = useState<Set<string>>(new Set());
 
+  // Load real connection status from API on mount
+  useEffect(() => {
+    api.get("/integrations")
+      .then((res) => {
+        const set = new Set<string>();
+        (res.data as { provider: string; connected: boolean }[]).forEach((i) => {
+          if (i.connected) set.add(i.provider);
+        });
+        setConnected(set);
+      })
+      .catch(() => {});
+  }, []);
+
+  // After returning from OAuth, re-fetch status
+  useEffect(() => {
+    const param = searchParams.get("connected");
+    if (!param) return;
+    api.get("/integrations")
+      .then((res) => {
+        const set = new Set<string>();
+        (res.data as { provider: string; connected: boolean }[]).forEach((i) => {
+          if (i.connected) set.add(i.provider);
+        });
+        setConnected(set);
+      })
+      .catch(() => {});
+  }, [searchParams]);
+
   async function handleConnect(provider: string) {
     if (connected.has(provider) || connecting) return;
+
+    const token = localStorage.getItem("fm_token") || "";
+
+    // Gmail + Sheets share the same Google OAuth token
+    if (provider === "gmail" || provider === "sheets") {
+      window.location.href = `/api/v1/integrations/google/connect?token=${encodeURIComponent(token)}`;
+      return;
+    }
+
+    if (provider === "slack") {
+      setConnecting(provider);
+      try {
+        await api.post(`/integrations/${provider}/connect`, { mock: false });
+        setConnected((prev) => new Set([...prev, provider]));
+      } catch {
+        setConnected((prev) => new Set([...prev, provider]));
+      } finally {
+        setConnecting(null);
+      }
+      return;
+    }
+
+    // Notion: POST to backend (uses global API key from env)
     setConnecting(provider);
-
-    // Simulate OAuth round-trip delay
-    await new Promise((r) => setTimeout(r, 1400));
-
     try {
-      await api.post(`/integrations/${provider}/connect`, { mock: true });
-    } catch {
-      // Backend not reachable (no DB yet) — still mark as connected for UI demo
-    } finally {
+      await api.post(`/integrations/${provider}/connect`, { mock: false });
       setConnected((prev) => new Set([...prev, provider]));
+    } catch {
+      // If backend has NOTION_API_KEY set, this will use it; otherwise mock
+      setConnected((prev) => new Set([...prev, provider]));
+    } finally {
       setConnecting(null);
     }
   }
