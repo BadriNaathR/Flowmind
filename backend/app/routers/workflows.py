@@ -36,6 +36,8 @@ def create_workflow(
         trigger=ai_result.get("trigger", {"type": "manual", "config": {}}),
         steps=ai_result.get("steps", []),
         status=WorkflowStatus.DRAFT,
+        confidence=ai_result.get("confidence"),
+        confidence_reason=ai_result.get("confidence_reason"),
     )
     db.add(workflow)
     db.commit()
@@ -121,6 +123,75 @@ def delete_workflow(
         raise HTTPException(status_code=404, detail="Workflow not found.")
     db.delete(wf)
     db.commit()
+
+
+@router.get("/{workflow_id}/run-preview")
+def run_preview(
+    workflow_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Returns a human-readable summary of exactly what will happen when this
+    workflow runs — before the user approves execution.
+    """
+    wf = db.query(Workflow).filter(
+        Workflow.id == workflow_id,
+        Workflow.user_id == current_user.id,
+    ).first()
+    if not wf:
+        raise HTTPException(status_code=404, detail="Workflow not found.")
+
+    REAL_ACTION_VERBS = ("send", "post", "create", "write", "append", "update", "delete", "reply", "notify", "label")
+    READ_ACTION_VERBS = ("read", "fetch", "check", "monitor", "search", "list", "get")
+
+    step_summaries = []
+    warnings = []
+
+    for i, step in enumerate(wf.steps or []):
+        integration = step.get("integration", "internal")
+        action = step.get("action", "execute").lower()
+        params = step.get("params", {})
+
+        is_real = any(v in action for v in REAL_ACTION_VERBS)
+        is_read = any(v in action for v in READ_ACTION_VERBS)
+
+        # Build a plain-English description
+        if "gmail" in integration:
+            if is_read:
+                desc = "Read unread emails from your Gmail inbox"
+            elif "send" in action or "reply" in action:
+                desc = f"Send an email to {params.get('to', 'recipient')} with subject \"{params.get('subject', '...')}\""
+            else:
+                desc = f"Perform Gmail action: {action}"
+        elif "slack" in integration:
+            desc = f"Post a message to {params.get('channel', '#general')} on Slack"
+        elif "notion" in integration:
+            desc = f"Create a Notion page titled from email subject"
+        elif "sheets" in integration:
+            desc = f"Append a row to Google Sheet \"{params.get('sheet', 'Sheet1')}\""
+        else:
+            desc = f"{integration}: {action}"
+
+        if is_real:
+            warnings.append(f"Step {i + 1} will make a real change: {desc}")
+
+        step_summaries.append({
+            "step_index": i,
+            "integration": integration,
+            "action": action,
+            "description": desc,
+            "is_destructive": is_real,
+            "is_read_only": is_read,
+        })
+
+    return {
+        "workflow_name": wf.name,
+        "total_steps": len(wf.steps or []),
+        "steps": step_summaries,
+        "warnings": warnings,
+        "requires_approval": len(warnings) > 0,
+    }
 
 
 @router.get("/{workflow_id}/runs")

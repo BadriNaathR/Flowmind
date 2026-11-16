@@ -286,6 +286,52 @@ export default function WorkflowPreviewPage() {
           <ArrowRight size={14} style={{ color: "var(--fg-subtle)", marginLeft: "auto" }} />
         </motion.div>
 
+        {/* AI Confidence score */}
+        {workflow.confidence != null && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="mb-6 p-4 rounded-2xl"
+            style={{
+              background: workflow.confidence >= 75
+                ? "rgba(34,197,94,0.07)"
+                : workflow.confidence >= 50
+                ? "rgba(251,191,36,0.07)"
+                : "rgba(239,68,68,0.07)",
+              border: `1px solid ${workflow.confidence >= 75 ? "#22c55e30" : workflow.confidence >= 50 ? "#fbbf2430" : "#ef444430"}`,
+            }}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-widest"
+                style={{ color: workflow.confidence >= 75 ? "#22c55e" : workflow.confidence >= 50 ? "#fbbf24" : "#ef4444" }}>
+                AI Confidence
+              </span>
+              <span className="text-sm font-bold"
+                style={{ color: workflow.confidence >= 75 ? "#22c55e" : workflow.confidence >= 50 ? "#fbbf24" : "#ef4444" }}>
+                {workflow.confidence}%
+              </span>
+            </div>
+            {/* Progress bar */}
+            <div style={{ height: 4, background: "var(--border)", borderRadius: 999, marginBottom: 8 }}>
+              <div style={{
+                height: "100%", borderRadius: 999,
+                width: `${workflow.confidence}%`,
+                background: workflow.confidence >= 75 ? "#22c55e" : workflow.confidence >= 50 ? "#fbbf24" : "#ef4444",
+                transition: "width 0.6s ease",
+              }} />
+            </div>
+            {workflow.confidence_reason && (
+              <p className="text-xs" style={{ color: "var(--fg-muted)" }}>{workflow.confidence_reason}</p>
+            )}
+            {workflow.confidence < 70 && (
+              <p className="text-xs font-semibold mt-1" style={{ color: "#fbbf24" }}>
+                ⚠ AI is uncertain — review each step carefully before activating.
+              </p>
+            )}
+          </motion.div>
+        )}
+
         {/* Steps */}
         <div className="mb-8">
           {workflow.steps.map((step, i) => (

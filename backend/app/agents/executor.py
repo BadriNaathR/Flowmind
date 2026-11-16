@@ -99,6 +99,30 @@ def _get_client(integration: str, user_id: uuid.UUID, db: Session):
     return GenericClient()
 
 
+_TRANSIENT_ERRORS = (
+    "timeout", "connection", "network", "503", "429",
+    "rate limit", "temporarily", "unavailable", "ssl", "refused", "reset",
+)
+
+async def _execute_with_retry(client, action: str, params: dict, max_retries: int = 3) -> tuple[dict, int]:
+    """
+    Run client.execute with exponential backoff retry on transient failures.
+    Returns (output, attempts_used).  attempts_used=1 means it worked first try.
+    """
+    last_exc: Exception = Exception("unknown")
+    for attempt in range(max_retries):
+        try:
+            output = await asyncio.to_thread(client.execute, action, params)
+            return output, attempt + 1
+        except Exception as exc:
+            last_exc = exc
+            is_transient = any(word in str(exc).lower() for word in _TRANSIENT_ERRORS)
+            if not is_transient or attempt == max_retries - 1:
+                raise
+            await asyncio.sleep(2 ** attempt)   # 1 s, 2 s, 4 s
+    raise last_exc
+
+
 async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
     """
     Async generator — yields event dicts as steps execute.
@@ -153,15 +177,15 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
         t0 = time.monotonic()
         try:
             client = _get_client(integration, workflow.user_id, db)
-            output = await asyncio.to_thread(client.execute, action, params)
+            output, attempts = await _execute_with_retry(client, action, params)
             duration_ms = int((time.monotonic() - t0) * 1000)
 
             log.status = StepStatus.SUCCESS
             log.completed_at = datetime.now(timezone.utc)
             log.output_data = output
+            log.retry_count = attempts - 1
             db.commit()
 
-            # Feed this step's output into context for all subsequent steps
             if isinstance(output, dict):
                 run_context.update({k: v for k, v in output.items() if not k.startswith("_")})
 
@@ -171,6 +195,7 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
                 "step_id": step_id,
                 "output": output,
                 "duration_ms": duration_ms,
+                "retries": attempts - 1,
             }
 
         except Exception as exc:
@@ -205,3 +230,80 @@ async def execute_workflow_stream(run_id: uuid.UUID, db: Session):
         "status": "success" if overall_success else "failed",
         "total_steps": len(steps),
     }
+
+
+def execute_workflow_stream_sync(run_id: uuid.UUID, db: Session) -> None:
+    """
+    Synchronous version of the executor for the email poller background task.
+    Same logic — no SSE yielding, just runs the steps and saves results to DB.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+
+    run = db.query(WorkflowRun).filter(WorkflowRun.id == run_id).first()
+    if not run:
+        return
+
+    workflow = run.workflow
+    steps: list[dict] = workflow.steps or []
+    overall_success = True
+    run_context: dict = {}
+
+    # Seed context with trigger email data if poller provided it
+    trigger_email = (run.trigger_data or {}).get("email", {})
+    if trigger_email:
+        run_context.update({k: v for k, v in trigger_email.items() if k != "id"})
+
+    for i, step in enumerate(steps):
+        step_id = step.get("step_id", f"step_{i + 1}")
+        integration = step.get("integration", "internal")
+        action = step.get("action", "execute")
+        params = _enrich_params(step.get("params", {}), run_context)
+
+        log = WorkflowRunLog(
+            id=uuid.uuid4(),
+            run_id=run_id,
+            step_index=i,
+            step_type=step.get("type", "action"),
+            integration=integration,
+            status=StepStatus.RUNNING,
+            started_at=datetime.now(timezone.utc),
+            input_data=params,
+        )
+        db.add(log)
+        db.commit()
+
+        t0 = time.monotonic()
+        try:
+            client = _get_client(integration, workflow.user_id, db)
+            output = client.execute(action, params)
+            duration_ms = int((time.monotonic() - t0) * 1000)
+
+            log.status = StepStatus.SUCCESS
+            log.completed_at = datetime.now(timezone.utc)
+            log.output_data = output
+            db.commit()
+
+            if isinstance(output, dict):
+                run_context.update({k: v for k, v in output.items() if not k.startswith("_")})
+
+            logger.info(f"[poller] step {i + 1} ({integration}) SUCCESS in {duration_ms}ms")
+
+        except Exception as exc:
+            duration_ms = int((time.monotonic() - t0) * 1000)
+            log.status = StepStatus.FAILED
+            log.completed_at = datetime.now(timezone.utc)
+            log.error_message = str(exc)
+            db.commit()
+            logger.error(f"[poller] step {i + 1} ({integration}) FAILED: {exc}")
+            overall_success = False
+            break
+
+    now = datetime.now(timezone.utc)
+    run.completed_at = now
+    run.status = RunStatus.SUCCESS if overall_success else RunStatus.FAILED
+    workflow.run_count = (workflow.run_count or 0) + 1
+    workflow.last_run_at = now
+    db.commit()
+
+    logger.info(f"[poller] workflow '{workflow.name}' run {run_id} → {run.status}")

@@ -27,6 +27,8 @@ class Workflow(Base):
     status: Mapped[WorkflowStatus] = mapped_column(SAEnum(WorkflowStatus, name="workflow_status_enum", native_enum=False), nullable=False, default=WorkflowStatus.DRAFT)
     run_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    confidence_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
 

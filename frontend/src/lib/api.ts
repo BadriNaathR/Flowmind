@@ -59,8 +59,10 @@ export interface Workflow {
   run_count: number;
   last_run_at: string | null;
   created_at: string;
-  trigger: Record<string, string>;
+  trigger: Record<string, unknown>;
   steps: WorkflowStep[];
+  confidence: number | null;
+  confidence_reason: string | null;
 }
 
 export interface WorkflowRun {

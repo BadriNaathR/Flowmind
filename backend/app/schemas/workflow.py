@@ -26,6 +26,8 @@ class WorkflowOut(BaseModel):
     trigger: dict
     steps: list[WorkflowStepOut]
     raw_input: str
+    confidence: int | None = None
+    confidence_reason: str | None = None
 
     model_config = {"from_attributes": True}
 

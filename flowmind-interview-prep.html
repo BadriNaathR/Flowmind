@@ -1,0 +1,634 @@
+<title>FlowMind Interview Prep</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap">
+
+<style>
+/* ── Layout: sidebar nav + scrollable content ── */
+:root {
+  --bg: #0c0f1a;
+  --surface: #141827;
+  --surface2: #1a2035;
+  --border: #2a3251;
+  --fg: #e2e8f4;
+  --fg-muted: #8899b8;
+  --fg-subtle: #4a5578;
+  --accent: #38bdf8;
+  --purple: #a78bfa;
+  --amber: #fbbf24;
+  --green: #34d399;
+  --red: #f87171;
+  --indigo: #818cf8;
+  --orange: #fb923c;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0;
+}
+
+/* ── Top bar ── */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(12,15,26,0.92);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.brand-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--purple));
+}
+
+.brand-name {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--fg);
+}
+
+.brand-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-subtle);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.search-wrap {
+  flex: 1;
+  min-width: 180px;
+  max-width: 320px;
+  position: relative;
+}
+
+.search-wrap svg {
+  position: absolute;
+  left: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--fg-subtle);
+  pointer-events: none;
+}
+
+#search {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px 7px 32px;
+  color: var(--fg);
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+#search::placeholder { color: var(--fg-subtle); }
+#search:focus { border-color: var(--accent); }
+
+.progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.progress-label { font-size: 12px; color: var(--fg-muted); }
+.progress-bar {
+  width: 80px; height: 4px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--purple));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+.progress-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 36px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Category filter pills ── */
+.filters {
+  padding: 16px 24px 0;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.pill[data-active="true"] { opacity: 1; }
+.pill[data-active="false"] { opacity: 0.45; }
+.pill:hover { opacity: 1; }
+
+/* ── Main content ── */
+.content {
+  padding: 24px;
+  max-width: 820px;
+}
+
+/* ── Section ── */
+.section { margin-bottom: 36px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.section-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.section-title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--fg);
+}
+
+.section-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-subtle);
+  margin-left: auto;
+}
+
+/* ── QA Card ── */
+.qa-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+.qa-card:hover { border-color: var(--border); }
+.qa-card.opened { border-color: rgba(56,189,248,0.3); }
+
+.qa-question {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: none;
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+  text-align: left;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.qa-question:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.q-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  min-width: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.q-text { flex: 1; min-width: 0; }
+
+.q-chevron {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--fg-subtle);
+  transition: transform 0.2s ease;
+}
+.opened .q-chevron { transform: rotate(180deg); }
+
+.qa-body {
+  display: none;
+  padding: 0 16px 16px 48px;
+}
+.qa-body.visible { display: block; }
+
+/* Short answer */
+.short-answer {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--fg);
+  line-height: 1.6;
+}
+
+.short-answer .label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+/* Full answer */
+.full-answer {
+  font-size: 13px;
+  color: var(--fg-muted);
+  line-height: 1.7;
+}
+
+.full-answer p { margin-bottom: 8px; }
+.full-answer p:last-child { margin-bottom: 0; }
+
+.full-answer strong {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+.full-answer code {
+  font-family: 'Fira Code', monospace;
+  font-size: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--accent);
+}
+
+.read-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--green);
+  margin-top: 10px;
+}
+
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--fg-muted);
+  font-size: 14px;
+}
+
+/* ── Hidden by filter ── */
+.section[hidden] { display: none; }
+.qa-card[hidden] { display: none; }
+</style>
+
+<div class="topbar">
+  <div class="topbar-brand">
+    <div class="brand-dot"></div>
+    <span class="brand-name">FlowMind</span>
+    <span class="brand-tag">Interview Prep</span>
+  </div>
+
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input id="search" type="search" placeholder="Search questions…" autocomplete="off">
+  </div>
+
+  <div class="progress-wrap">
+    <span class="progress-label">Reviewed</span>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <span class="progress-count" id="prog-text">0 / 0</span>
+  </div>
+</div>
+
+<div class="filters" id="filters"></div>
+
+<div class="content" id="content"></div>
+
+<script>
+const CATEGORIES = [
+  { id:'overview',   label:'Project Overview',    color:'#38bdf8', icon:'🗺' },
+  { id:'arch',       label:'Architecture',         color:'#a78bfa', icon:'🏗' },
+  { id:'exec',       label:'Execution Engine',     color:'#f59e0b', icon:'⚙' },
+  { id:'ai',         label:'AI & LLM',             color:'#34d399', icon:'🤖' },
+  { id:'integrations', label:'Integrations',       color:'#fb923c', icon:'🔗' },
+  { id:'security',   label:'Security',             color:'#f87171', icon:'🔒' },
+  { id:'frontend',   label:'Frontend',             color:'#818cf8', icon:'🖥' },
+  { id:'deploy',     label:'Deployment',           color:'#fbbf24', icon:'🚀' },
+];
+
+const QA = [
+  // ── Project Overview ──
+  { cat:'overview', q:'What is FlowMind? Explain it in 30 seconds.',
+    short:'FlowMind is an AI-powered workflow automation platform. Users describe what they want to automate in plain English — "when I get an invoice email, create a Notion task and notify Slack" — and Claude AI decomposes that into executable steps, connects real APIs, and runs it automatically. No code, no drag-and-drop builders.',
+    full:'<p>It solves the problem that tools like Zapier and Make have: they still require users to understand triggers, actions, and integration concepts. FlowMind removes that entirely — you just describe the outcome you want.</p><p>Under the hood: the backend is <strong>Python + FastAPI</strong>, the AI is <strong>Claude via the OpenAI-compatible endpoint</strong>, and the integrations are real API calls to Gmail, Slack, Google Sheets, and Notion. The execution engine streams step-by-step results to the browser in real time using <strong>Server-Sent Events</strong>.</p>'
+  },
+  { cat:'overview', q:'What was the hardest problem you solved in this project?',
+    short:'The hardest was making steps chain together — the output of one step (email subject) flowing automatically into the next step\'s params (Notion page title). Early versions ran steps independently with no data flow between them.',
+    full:'<p>The fix was an <code>_enrich_params</code> function in the executor that accumulates output from every completed step into a <code>run_context</code> dictionary. Before each step runs, its static params are merged with the accumulated context — so if Gmail returned <code>{"subject": "Invoice #42"}</code>, the Notion step automatically gets <code>"title": "Invoice #42"</code> without any explicit wiring.</p><p>The second hard problem was the SSL certificate issue on the TCS corporate network. Every outbound HTTPS call failed because the corporate proxy re-signs traffic with an internal CA. Each library needed its own bypass: <code>httpx</code>, <code>requests</code>, <code>httplib2</code>, and <code>slack_sdk</code> all have different APIs for disabling verification.</p>'
+  },
+  { cat:'overview', q:'What would you do differently if you started over?',
+    short:'I would design the data model around multi-step context passing from day one, and I would use the openai library directly instead of LangChain from the start to avoid compatibility issues.',
+    full:'<p>LangChain added complexity without benefit here. We were using exactly one feature of it — calling a chat model — which the <code>openai</code> library does natively in two lines. Swapping it out later caused the errors you see when <code>langchain-openai==0.1.22</code> meets <code>openai==1.109.1</code>.</p><p>I would also set up Alembic migrations from the start rather than using <code>Base.metadata.create_all</code>, so adding columns later (like <code>confidence</code>) doesn\'t require manual <code>ALTER TABLE</code> patches.</p>'
+  },
+
+  // ── Architecture ──
+  { cat:'arch', q:'Why FastAPI instead of Django or Flask?',
+    short:'FastAPI is async-native, which is essential for the SSE streaming endpoint. It also has automatic request validation via Pydantic and auto-generated API docs. Django is heavier than we need; Flask is sync by default and would need an async layer.',
+    full:'<p>The SSE streaming endpoint is an async generator — it yields events as steps complete. This requires an async web framework. FastAPI runs on <strong>Starlette</strong> under the hood, which is built on ASGI and handles async natively.</p><p><strong>Pydantic integration</strong> means every request body and response schema is validated and typed automatically. <code>WorkflowCreate</code>, <code>WorkflowOut</code> — these schemas double as both validation and documentation.</p><p>Flask could work with <code>quart</code> for async, but that\'s adding a library to fix a limitation. FastAPI was designed async-first.</p>'
+  },
+  { cat:'arch', q:'Why SQLite for development? Why not just use Postgres from day one?',
+    short:'SQLite requires zero setup — no server to run, no connection string to configure, the database is a single file. This lets anyone clone the repo and run it immediately. The switch to Postgres for deployment is a one-line environment variable change.',
+    full:'<p>The app is designed with a <strong>two-system split</strong>: SQLite on the development machine (TCS corporate laptop), PostgreSQL on the production server (Supabase). SQLAlchemy abstracts the difference — the same ORM code works on both.</p><p>The only SQLite-specific decisions were: using <code>Uuid(as_uuid=True)</code> instead of the native Postgres UUID type, using <code>native_enum=False</code> on all enums (SQLite has no native enum type), and using <code>Base.metadata.create_all</code> instead of Alembic for dev table creation.</p>'
+  },
+  { cat:'arch', q:'Why JWT for authentication instead of sessions?',
+    short:'JWTs are stateless — the server doesn\'t need to store session data. This matters for a single-page application because the token lives in the browser and is sent with every API request as a header. No server-side session store needed.',
+    full:'<p>The token is signed with <code>HS256</code> using a secret key stored in <code>.env</code>. Every protected route calls <code>get_current_user</code> which decodes the token, verifies the signature, and returns the user object — no database query for auth.</p><p>The SSE endpoint is special: browsers don\'t allow custom headers on <code>EventSource</code> connections, so the JWT is passed as a query parameter (<code>?token=...</code>) via the <code>get_current_user_query</code> dependency instead of the Authorization header.</p>'
+  },
+  { cat:'arch', q:'How is the database schema structured? Walk me through the main tables.',
+    short:'Five tables: users, integrations (OAuth tokens per user per provider), workflows (AI-generated step definitions), workflow_runs (each execution instance), and workflow_run_logs (per-step results with input/output data).',
+    full:'<p><strong>users</strong>: id, email, hashed_password, name, avatar_url, google_id. One row per registered user.</p><p><strong>integrations</strong>: user_id (FK), provider (gmail/slack/sheets/notion), access_token (Fernet-encrypted), refresh_token (encrypted), expires_at. One row per connected integration per user.</p><p><strong>workflows</strong>: user_id (FK), name, raw_input (original description), trigger (JSON: type + filter config), steps (JSON array), status, run_count, confidence, confidence_reason.</p><p><strong>workflow_runs</strong>: workflow_id (FK), status (running/success/failed), started_at, completed_at, trigger_data (which email fired it).</p><p><strong>workflow_run_logs</strong>: run_id (FK), step_index, integration, status, input_data, output_data, error_message, retry_count. One row per step per run.</p>'
+  },
+
+  // ── Execution Engine ──
+  { cat:'exec', q:'Why Server-Sent Events instead of WebSockets?',
+    short:'SSE is one-directional: server pushes to browser. WebSocket is two-way. During workflow execution, the browser only needs to receive updates — step started, step completed, step failed. The browser never needs to send anything back while the workflow runs. SSE is simpler, uses plain HTTP, and works through every proxy automatically.',
+    full:'<p>WebSocket requires a protocol upgrade handshake and persistent bidirectional state. For this use case, that\'s engineering overhead with no benefit.</p><p>SSE uses a regular <code>GET</code> request with <code>Content-Type: text/event-stream</code>. The connection stays open and the server writes <code>data: {...}\n\n</code> lines as events. The browser\'s native <code>EventSource</code> API handles reconnection automatically.</p><p>The one limitation: SSE can only carry UTF-8 text. That\'s fine here since all step output is JSON.</p><p><strong>Interview one-liner</strong>: "SSE is a radio broadcast; WebSocket is a phone call. I only needed to broadcast."</p>'
+  },
+  { cat:'exec', q:'What happens when Step 2 fails after Step 1 succeeded?',
+    short:'The executor uses a fail-fast strategy. Step 1\'s output is saved to the database as SUCCESS. Step 2\'s failure is saved as FAILED with the error message. The loop hits `break` immediately — Step 3 and beyond never run. The whole run is marked FAILED.',
+    full:'<p>The key line is <code>break</code> after recording the failure. We don\'t continue because each step uses the previous step\'s output. If Step 2 failed to create the Notion page, Step 3\'s Slack message would contain <code>None</code> where the Notion URL should be — wrong data going to real users.</p><p>The SSE stream yields a <code>step_failed</code> event which the frontend renders as a red row. Steps 3+ simply never appear. The browser shows the "Test run failed" banner.</p><p>All completed steps (Step 1 in this case) remain in the database with their output. Run history shows exactly which step failed and why.</p>'
+  },
+  { cat:'exec', q:'How does step chaining work? How does Gmail output reach Slack?',
+    short:'The executor maintains a `run_context` dictionary that accumulates output from every completed step. Before each step runs, `_enrich_params` merges the static step params with the accumulated context — so Gmail\'s email subject automatically becomes the Notion page title and the Slack message text.',
+    full:`<p>Concretely: Gmail's <code>execute</code> returns <code>{"emails": [{"subject": "Invoice #42", "from": "vendor@co.com", "snippet": "..."}]}</code>. This gets merged into <code>run_context</code>.</p>
+<p>When the Notion step runs next, <code>_enrich_params</code> sees <code>emails</code> in the context, extracts <code>subject</code>, and sets <code>enriched["title"] = "Invoice #42"</code> — even if the LLM-generated params didn't include a title.</p>
+<p>When the Slack step runs, the same function builds <code>enriched["message"] = "From: vendor@co.com\\nSubject: Invoice #42\\n..."</code>. If the Notion step ran and returned a URL, that URL is appended to the Slack message.</p>
+<p>This is the difference between a "step runner" and an actual workflow — data flows through the pipeline.</p>`
+  },
+  { cat:'exec', q:'Explain the retry logic. What counts as a retryable error?',
+    short:'Each step retries up to 3 times with exponential backoff: 1 second, then 2 seconds, then 4 seconds. Only transient errors are retried — network timeouts, SSL failures, connection resets, 429 rate limits, 503 service unavailable. Logical errors (wrong params, bad token, 401 Unauthorized) are not retried because retrying won\'t fix them.',
+    full:'<p>The check is a string match against the error message: <code>timeout, connection, network, 503, 429, rate limit, temporarily, unavailable, ssl, refused, reset</code>. If none of these appear in the error string, the exception is re-raised immediately on the first attempt.</p><p>The retry count is stored in <code>WorkflowRunLog.retry_count</code> and surfaced in the SSE <code>step_completed</code> event as <code>"retries": 2</code> — so the UI can show "completed after 2 retries" if needed.</p><p><strong>Why exponential backoff?</strong> A rate-limited API (429) needs time to reset its window. Hammering it immediately with retries makes the problem worse. Waiting 1s, 2s, 4s gives the upstream service time to recover.</p>'
+  },
+  { cat:'exec', q:'What is the email poller and how does it work?',
+    short:'A background asyncio task that runs every 5 minutes. It queries all active workflows with an email trigger, calls Gmail\'s API with the trigger filter as a search query, and fires the workflow for any matching unread email. After running, it marks the email as read to prevent duplicate processing.',
+    full:'<p>The poller starts at app startup via FastAPI\'s <code>lifespan</code> context manager and runs in an infinite loop with <code>asyncio.sleep(300)</code>.</p><p>For each email-triggered workflow it: (1) loads the user\'s Gmail token from the DB, (2) builds a search query like <code>from:boss@company.com subject:invoice is:unread</code>, (3) calls the Gmail API, (4) for each matching email: marks it as read first (atomic, prevents double-fire on crash), then creates a <code>WorkflowRun</code> record and executes the workflow synchronously in the same thread.</p><p>The sync executor (<code>execute_workflow_stream_sync</code>) is a copy of the main executor without SSE yielding — it just runs steps and saves results to the DB. No browser is watching, so there\'s no stream to send events to.</p>'
+  },
+
+  // ── AI & LLM ──
+  { cat:'ai', q:'How is Claude AI used in FlowMind? When is it called?',
+    short:'Claude is called exactly once — when the user creates a workflow. The user\'s plain-English description is sent to Claude with a system prompt that specifies a JSON schema. Claude returns a structured workflow definition: name, trigger type, filter config, and 2–6 steps with integration, action, and params. After that, Claude is never called again.',
+    full:'<p>During workflow execution — test runs, the email poller — the LLM is not involved at all. The executor reads the pre-generated step definitions from the database and calls the integration APIs directly. This is important for the security question about whether the LLM reads users\' emails: it does not.</p><p>The system prompt specifies the JSON schema, rules (2–6 steps max, specific integration names), integration-specific defaults (Notion parent ID, Slack channel), trigger filter extraction, and the confidence score instruction. Claude is treated as a structured data generator, not a conversational assistant.</p>'
+  },
+  { cat:'ai', q:'Why did you replace LangChain with the openai library directly?',
+    short:'LangChain 0.1.22 was written for openai<1.0. We had openai 1.109.1 installed. The `openai_api_base` parameter that LangChain used was removed in openai v1.x. The direct openai client does the same thing in two lines with no compatibility risk.',
+    full:'<p>The error manifested as <code>openai.BadRequestError</code> or parameter validation failures — LangChain was trying to pass deprecated kwargs to the new openai client.</p><p>The replacement: <code>OpenAI(api_key=..., base_url=...).chat.completions.create(model=..., messages=[...])</code>. This is the standard openai v1.x API, works identically with TCS GenAI Lab (which is OpenAI-compatible) and OpenRouter.</p><p>For OpenRouter specifically, two extra headers are recommended: <code>HTTP-Referer</code> (identifies the app) and <code>X-Title</code> (shown in the OpenRouter dashboard). These are set via <code>default_headers</code> on the client constructor.</p>'
+  },
+  { cat:'ai', q:'What is the AI confidence score? How is it generated?',
+    short:'The confidence score (0–100) is part of the JSON the AI returns alongside the workflow steps. The AI assesses how clearly the user\'s request maps to the available integrations and actions. If the request is ambiguous or uses integrations that don\'t exist in FlowMind, confidence drops.',
+    full:'<p>It\'s included in the system prompt schema: <code>"confidence": 85, "confidence_reason": "..."</code>. The AI rates its own output — this is called LLM self-evaluation.</p><p>The score is clamped to 0–100 in code after parsing. It\'s stored in the <code>workflows</code> table as an integer column. The preview page shows a colour-coded progress bar: green ≥75%, yellow 50–74%, red &lt;50%. Below 70% shows a warning: "AI is uncertain — review carefully before activating."</p><p>This is valuable in an interview because it shows awareness of LLM limitations: AI outputs aren\'t always correct, and surfacing uncertainty to the user builds appropriate trust.</p>'
+  },
+  { cat:'ai', q:'Does the LLM ever read users\' emails? Is there a privacy risk?',
+    short:'No. The LLM only sees the user\'s plain-English workflow description — the sentence they type. It never sees email content, Notion pages, Slack messages, or any real user data. Email content flows directly between Gmail\'s API and Notion/Slack during execution without touching the LLM.',
+    full:'<p>The data flow during execution: Gmail API → executor (<code>run_context</code>) → Notion API / Slack API. The LLM is called once at workflow creation time, before any emails exist in the picture.</p><p>The trigger filter further reduces data exposure: instead of reading all unread emails, the Gmail client uses the filter (<code>from:boss@company.com subject:invoice is:unread</code>) as a Gmail search query. Only matching emails are fetched — the inbox is not fully read.</p><p>What data leaves the user\'s backend: email subject, sender name, snippet (not the full body). These are sent to Notion as a page title and to Slack as a message. The user chose these integrations knowingly.</p>'
+  },
+  { cat:'ai', q:'What is the human approval gate? Why is it important for AI agents?',
+    short:'Before a workflow runs, the system shows the user exactly what real actions will be taken — "will send a Slack message to #new-channel", "will create a Notion page". The user must click Approve before execution starts. Read-only steps (like reading Gmail) skip the gate.',
+    full:'<p>This is the <strong>human-in-the-loop</strong> pattern — a core concept in safe AI agent design. AI-generated plans can misinterpret intent. Giving the user a final review step before irreversible actions (sending emails, posting to Slack) prevents automated mistakes from reaching the real world.</p><p>The backend <code>/run-preview</code> endpoint classifies each step by its action verb: "send", "post", "create", "write" are marked destructive; "read", "fetch", "check" are marked read-only. The frontend renders each step with a red warning ("Real action — this will actually happen") or a green note ("Read only").</p><p>If the workflow only reads data, the gate is skipped and execution starts immediately. This avoids annoying users with approval dialogs for safe operations.</p>'
+  },
+
+  // ── Integrations ──
+  { cat:'integrations', q:'How does Google OAuth work in FlowMind?',
+    short:'The user is redirected to Google\'s consent screen with specific scopes (gmail.modify + spreadsheets + openid). Google redirects back with an authorization code. The backend exchanges the code for access and refresh tokens using a POST to Google\'s token endpoint. Both tokens are Fernet-encrypted and stored in the integrations table.',
+    full:'<p>The flow uses Authorization Code + PKCE pattern. The redirect URI must be registered in Google Cloud Console. We use <code>access_type=offline</code> to get a refresh token (needed to call APIs after the initial access token expires, usually after 1 hour) and <code>prompt=consent</code> to always show the consent screen (ensures we get a fresh refresh token).</p><p>One token covers both Gmail and Sheets — both are Google APIs, both use the same OAuth credential. We store two rows in the integrations table (provider=gmail and provider=sheets) with the same token, so the executor can load the right token regardless of which integration a step uses.</p><p>For production: the Google app must be verified by Google for the <code>gmail.modify</code> scope, since it accesses user email. During development, the user\'s own Google account must be added as a "test user" in Google Cloud Console.</p>'
+  },
+  { cat:'integrations', q:'Why does Slack use a bot token instead of OAuth?',
+    short:'Slack\'s OAuth flow for bot scopes blocks redirects to localhost (non-web URIs). It raises "Bot scopes are not allowed when redirecting to a non-web URI." Since we can\'t use OAuth on localhost, we use the bot token from the Slack App settings directly.',
+    full:'<p>We tried implementing PKCE (Proof Key for Code Exchange) which Slack requires for localhost redirects. The error message then changed: PKCE is required, but once PKCE is provided, Slack rejects it because bot scopes still can\'t use localhost. This is a Slack security policy, not a bug in our code.</p><p>The workaround: the user creates a Slack App, installs it to their workspace (which generates a bot token starting with <code>xoxb-</code>), and pastes that token into the <code>.env</code> file as <code>SLACK_BOT_TOKEN</code>. When the user clicks "Connect" on the onboarding page, we POST to our backend which saves this token to the database.</p><p>For production deployment, the Slack redirect URI would point to <code>https://your-domain.com/api/v1/integrations/slack/callback</code> — a real web URI — and the full OAuth flow would work properly.</p>'
+  },
+  { cat:'integrations', q:'How are OAuth tokens stored securely?',
+    short:'All OAuth tokens are encrypted using Fernet symmetric encryption before being written to the database. Fernet uses AES-128-CBC with HMAC-SHA256 for authentication. The encryption key is stored only in the .env file, never in the database. A stolen database dump is useless without the key.',
+    full:'<p>The key is generated once: <code>from cryptography.fernet import Fernet; Fernet.generate_key()</code> and stored as <code>ENCRYPTION_KEY</code> in <code>.env</code>. The <code>encrypt_token</code> and <code>decrypt_token</code> functions in <code>security.py</code> handle all encryption/decryption.</p><p>When the executor loads a token to make an API call, it decrypts it in memory, passes it to the integration client, and never writes it back to any log or response. The decrypted token exists only in RAM during the API call.</p><p>An important consideration for production: different <code>ENCRYPTION_KEY</code> values for dev and prod. If someone gets the dev key, they can\'t decrypt prod tokens.</p>'
+  },
+  { cat:'integrations', q:'What Gmail OAuth scopes do you request and why those specific ones?',
+    short:'We request `gmail.modify` (not `gmail.readonly`) because the app needs to both read emails AND mark them as read after processing — marking as read requires write access. We also request `spreadsheets` for Sheets access. `openid email profile` are standard for the login flow.',
+    full:'<p><code>gmail.readonly</code> would be insufficient because the email poller marks processed emails as read (removes the UNREAD label) to prevent double-processing. That label modification is a write operation.</p><p><code>gmail.modify</code> allows: reading messages, modifying labels, sending messages. It does NOT allow deleting messages permanently — that requires <code>gmail.trash</code> or <code>mail.google.com</code> (full access). We intentionally chose the least-privileged scope that covers our use case.</p><p><code>spreadsheets</code> gives both read and write access to all sheets in the user\'s Google Drive. A more restrictive alternative would be <code>drive.file</code> which limits access to files the app created — worth considering for production to reduce the OAuth consent screen\'s surface area.</p>'
+  },
+
+  // ── Security ──
+  { cat:'security', q:'How do you prevent a user from accessing another user\'s workflows?',
+    short:'Every database query for workflows filters by both workflow ID AND user_id. Even if a user knows another user\'s workflow UUID, the query returns nothing because the user_id check fails. The JWT token identifies the user, and the user_id is taken from the token, not from the request.',
+    full:'<p>Example in the router: <code>db.query(Workflow).filter(Workflow.id == workflow_id, Workflow.user_id == current_user.id).first()</code>. If both conditions aren\'t met, the result is <code>None</code> and we return 404 (not 403, so we don\'t leak whether the resource exists).</p><p>The <code>current_user</code> comes from <code>get_current_user</code> which decodes the JWT and queries the user by ID. The user cannot forge a different user_id into the JWT because they don\'t have the signing key.</p>'
+  },
+  { cat:'security', q:'What is PKCE and why was it relevant to your Slack implementation?',
+    short:'PKCE (Proof Key for Code Exchange) is an OAuth security extension that prevents authorization code interception attacks. The client generates a random secret, hashes it, sends the hash to the authorization server, then proves it has the original secret when exchanging the code for a token.',
+    full:'<p>Without PKCE, an OAuth authorization code could be intercepted by a malicious app on the same device (especially on mobile/desktop). PKCE ties the code to the specific client that requested it.</p><p>Slack requires PKCE for all localhost redirect URIs. We implemented it: generate <code>code_verifier</code> (random 32 bytes, URL-safe base64), hash it to get <code>code_challenge</code> (SHA-256), send the challenge in the authorization URL, embed the verifier in the OAuth <code>state</code> parameter, and send the verifier when exchanging the code.</p><p>Ultimately Slack still rejected the localhost redirect for bot scopes, so PKCE didn\'t help us — but understanding and implementing it shows depth of OAuth knowledge.</p>'
+  },
+
+  // ── Frontend ──
+  { cat:'frontend', q:'Why Zustand over Redux for state management?',
+    short:'Zustand requires no boilerplate. Redux demands actions, reducers, dispatch, and a Provider — for one piece of global state (the auth token), that\'s significant overhead. Zustand is a single hook with a store function. The whole auth store is under 50 lines.',
+    full:'<p>Redux is excellent for large apps with complex state interactions. For FlowMind, there\'s essentially one piece of global state: whether the user is authenticated and their JWT token. Local component state (<code>useState</code>) handles everything else.</p><p>One important pattern: the Zustand store is initialized with <code>const _initialToken = localStorage.getItem("fm_token")</code> outside the store definition. This runs synchronously when the module loads, so <code>isAuthenticated</code> is correct on the first render. Without this, the app would flash to the login page while the async <code>hydrate()</code> call ran — a race condition we hit and fixed.</p>'
+  },
+  { cat:'frontend', q:'How does the SSE connection work from the frontend? Walk through the code.',
+    short:'After getting a run_id from the POST /test endpoint, the useRunStream hook creates an EventSource pointing to /api/v1/stream/{run_id}?token=JWT. The browser holds the connection open. Each data: {...} message is parsed as JSON and added to the events array. When run_completed fires, the connection closes.',
+    full:`<p>The browser's native <code>EventSource</code> API: <code>new EventSource("/api/v1/stream/\${runId}?token=\${token}")</code>. The JWT goes in the query string because <code>EventSource</code> doesn't support custom headers.</p>
+<p>Three event handlers: <code>onopen</code> → set status to "running"; <code>onmessage</code> → parse JSON, append to events array, check if type is "run_completed" or "error" and close; <code>onerror</code> → set status to "failed" and close.</p>
+<p>A bug we found and fixed: the hook was reading <code>localStorage.getItem("token")</code> but the app stores the JWT under <code>"fm_token"</code>. This caused every SSE connection to authenticate with an empty token, get a 401, and immediately show "Test run failed" — with the run stuck in RUNNING in the database forever.</p>`
+  },
+  { cat:'frontend', q:'Why Vite instead of Create React App?',
+    short:'Vite uses native ES modules in development — no bundling step. Hot module replacement is near-instant. Create React App uses webpack which bundles the entire app on every change. For a project of this size, Vite is 10–20x faster to start and reload.',
+    full:'<p>Vite also handles the proxy to the backend: <code>vite.config.ts</code> proxies all <code>/api</code> requests to <code>http://localhost:8000</code>. This means the frontend on port 5173 and backend on port 8000 appear to be the same origin to the browser — no CORS issues in development, and the same URL structure works in production.</p><p>Create React App is also no longer actively maintained by Meta (archived in 2023). Vite is the current community standard for React tooling.</p>'
+  },
+
+  // ── Deployment ──
+  { cat:'deploy', q:'What needs to change to go from development to production?',
+    short:'Three things: (1) swap DATABASE_URL from SQLite to Supabase PostgreSQL and run Alembic migrations, (2) swap TCS_API_KEY/MODEL for OPENROUTER_API_KEY/MODEL, (3) remove all SSL verification bypasses — verify=False in httpx, disable_ssl_certificate_validation in httplib2, CERT_NONE in the Slack SSL context.',
+    full:'<p>The SSL bypasses exist because the TCS corporate proxy re-signs all HTTPS traffic with an internal certificate that standard libraries don\'t trust. On a real cloud server (Railway, Render, AWS) this doesn\'t exist — standard SSL verification works fine. Leaving the bypasses in production would be a security risk.</p><p>Exact files to change: <code>routers/integrations.py</code> (httpx), <code>integrations/gmail.py</code> (httplib2 + requests), <code>integrations/sheets.py</code> (same), <code>integrations/slack.py</code> (ssl context), <code>integrations/notion.py</code> (httpx), <code>agents/workflow_agent.py</code> (httpx on TCS client only).</p><p>All of this is documented in <code>DEPLOYMENT_GUIDE.md</code> at the project root with the exact before/after code for each file.</p>'
+  },
+  { cat:'deploy', q:'What is Supabase and why use it for production instead of raw Postgres?',
+    short:'Supabase is a managed PostgreSQL service with a free tier, automatic backups, and a web dashboard. Instead of provisioning and maintaining a Postgres server, you get a connection string and start using it immediately. The app doesn\'t know the difference — it\'s just Postgres.',
+    full:'<p>The connection string format: <code>postgresql://postgres.&lt;project&gt;:&lt;password&gt;@aws-0-&lt;region&gt;.pooler.supabase.com:6543/postgres</code>. Set this as <code>DATABASE_URL</code> in production <code>.env</code>.</p><p>SQLAlchemy connects to it identically to any other PostgreSQL instance. The only SQLite-specific code (the <code>_is_sqlite</code> check and <code>Base.metadata.create_all</code>) is bypassed in production — Alembic handles migrations instead.</p><p>For the initial schema creation on Supabase: <code>alembic upgrade head</code> from the backend directory with the production DATABASE_URL set.</p>'
+  },
+  { cat:'deploy', q:'What is OpenRouter and why use it instead of calling Anthropic directly?',
+    short:'OpenRouter is an API gateway that provides a unified OpenAI-compatible endpoint for 200+ LLM providers including Anthropic, Google, Meta, and Mistral. Using OpenRouter means we can switch between Claude models, Gemini, or Llama with a one-line model name change — no SDK changes.',
+    full:'<p>Calling Anthropic directly would require the <code>anthropic</code> SDK with its own message format (different from OpenAI\'s). OpenRouter provides an OpenAI-compatible endpoint, so the same <code>openai.OpenAI(base_url="https://openrouter.ai/api/v1")</code> call works for any model on the platform.</p><p>Cost benefit: Claude 3 Haiku via OpenRouter is priced per token with no monthly subscription. For a portfolio project with sporadic usage, this is much cheaper than a fixed monthly plan.</p><p>The two recommended headers — <code>HTTP-Referer</code> and <code>X-Title</code> — are shown in the OpenRouter dashboard to help identify your app\'s usage. They\'re optional but good practice.</p>'
+  },
+];
+
+// ── State ──
+const readSet = new Set(JSON.parse(localStorage.getItem('fm_read') || '[]'));
+const activeFilters = new Set();
+let searchTerm = '';
+
+function saveRead() {
+  try { localStorage.setItem('fm_read', JSON.stringify([...readSet])); } catch {}
+}
+
+function updateProgress() {
+  const total = QA.length;
+  const done = readSet.size;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = done + ' / ' + total;
+}
+
+// ── Render filters ──
+const filterWrap = document.getElementById('filters');
+CATEGORIES.forEach(cat => {
+  const pill = document.createElement('button');
+  pill.className = 'pill';
+  pill.dataset.id = cat.id;
+  pill.dataset.active = 'true';
+  pill.style.cssText = `color:${cat.color};border-color:${cat.color}40;background:${cat.color}12`;
+  pill.innerHTML = `<span>${cat.icon}</span><span>${cat.label}</span>`;
+  pill.addEventListener('click', () => {
+    if (activeFilters.has(cat.id)) activeFilters.delete(cat.id);
+    else activeFilters.add(cat.id);
+    pill.dataset.active = activeFilters.has(cat.id) ? 'false' : 'true';
+    applyFilters();
+  });
+  filterWrap.appendChild(pill);
+});
+
+// ── Render QA cards ──
+const contentEl = document.getElementById('content');
+
+CATEGORIES.forEach((cat, secIdx) => {
+  const qs = QA.filter(q => q.cat === cat.id);
+  const section = document.createElement('div');
+  section.className = 'section';
+  section.dataset.cat = cat.id;
+
+  section.innerHTML = `
+    <div class="section-header">
+      <div class="section-icon" style="background:${cat.color}18;color:${cat.color}">${cat.icon}</div>
+      <span class="section-title" style="color:${cat.color}">${cat.label}</span>
+      <span class="section-count">${qs.length} question${qs.length !== 1 ? 's' : ''}</span>
+    </div>
+  `;
+
+  qs.forEach((item, i) => {
+    const globalIdx = QA.indexOf(item);
+    const card = document.createElement('div');
+    card.className = 'qa-card' + (readSet.has(globalIdx) ? ' opened' : '');
+    card.dataset.idx = globalIdx;
+    card.dataset.cat = cat.id;
+    card.dataset.qtext = item.q.toLowerCase();
+
+    card.innerHTML = `
+      <button class="qa-question" aria-expanded="${readSet.has(globalIdx)}">
+        <span class="q-num" style="color:${cat.color}">Q${i+1}</span>
+        <span class="q-text">${item.q}</span>
+        <svg class="q-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
+      <div class="qa-body${readSet.has(globalIdx) ? ' visible' : ''}">
+        <div class="short-answer">
+          <div class="label">2-sentence answer</div>
+          ${item.short}
+        </div>
+        <div class="full-answer">${item.full}</div>
+        ${readSet.has(globalIdx) ? '<div class="read-badge">✓ Reviewed</div>' : ''}
+      </div>
+    `;
+
+    const btn = card.querySelector('.qa-question');
+    btn.addEventListener('click', () => {
+      const body = card.querySelector('.qa-body');
+      const isOpen = body.classList.contains('visible');
+      body.classList.toggle('visible', !isOpen);
+      card.classList.toggle('opened', !isOpen);
+      btn.setAttribute('aria-expanded', !isOpen);
+      if (!isOpen && !readSet.has(globalIdx)) {
+        readSet.add(globalIdx);
+        const badge = document.createElement('div');
+        badge.className = 'read-badge';
+        badge.textContent = '✓ Reviewed';
+        body.appendChild(badge);
+        saveRead();
+        updateProgress();
+      }
+    });
+
+    section.appendChild(card);
+  });
+
+  contentEl.appendChild(section);
+});
+
+updateProgress();
+
+// ── Filter logic ──
+function applyFilters() {
+  const sections = contentEl.querySelectorAll('.section');
+  sections.forEach(sec => {
+    const cat = sec.dataset.cat;
+    const catHidden = activeFilters.has(cat);
+    const cards = sec.querySelectorAll('.qa-card');
+    let visibleCount = 0;
+    cards.forEach(card => {
+      const matchesCat = !catHidden;
+      const matchesSearch = !searchTerm || card.dataset.qtext.includes(searchTerm);
+      const hide = !matchesCat || !matchesSearch;
+      card.hidden = hide;
+      if (!hide) visibleCount++;
+    });
+    sec.hidden = visibleCount === 0;
+  });
+}
+
+document.getElementById('search').addEventListener('input', e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  applyFilters();
+});
+</script>
